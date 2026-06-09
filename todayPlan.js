@@ -410,7 +410,7 @@ function renderTodayPlan() {
         });
 
         checkbox.addEventListener("change", () => {
-            fetch(`/goals/${item.goalId}/parts/${item.partIndex}`, {
+            fetch(apiUrl(`/goals/${item.goalId}/parts/${item.partIndex}`), {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"

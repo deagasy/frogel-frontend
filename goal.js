@@ -15,7 +15,7 @@ const params = new URLSearchParams(window.location.search);
 
 const goalId = params.get("id");
 
-fetch(`/goals/${goalId}`)
+fetch(apiUrl(`/goals/${goalId}`))
     .then(response => response.json())
     .then(goal => {
         document.getElementById("goalTitle").innerText =
@@ -63,7 +63,7 @@ fetch(`/goals/${goalId}`)
             saveDeadlineButton.disabled = true;
             saveDeadlineButton.innerText = "Сохраняем...";
 
-            fetch(`/goals/${goalId}/deadline`, {
+            fetch(apiUrl(`/goals/${goalId}/deadline`), {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -279,7 +279,7 @@ fetch(`/goals/${goalId}`)
             saveProgressButton.disabled = true;
             saveProgressButton.innerText = "Сохраняем...";
 
-            fetch(`/goals/${goalId}/parts/${selectedMeasuredPartIndex}/amount`, {
+            fetch(apiUrl(`/goals/${goalId}/parts/${selectedMeasuredPartIndex}/amount`), {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -379,7 +379,7 @@ fetch(`/goals/${goalId}`)
                 return;
             }
 
-                fetch(`/goals/${goalId}/parts/${index}`, {
+                fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
                     method: "DELETE"
                 })
                     .then(() => {
@@ -415,7 +415,7 @@ if (detailsToggle) {
 }
 
             checkbox.addEventListener("change", () => {
-                fetch(`/goals/${goalId}/parts/${index}`, {
+                fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json"
@@ -541,12 +541,12 @@ if (detailsToggle) {
                 btnTypeNormal.classList.remove("step-type-btn--active");
                 btnTypeMeasurable.classList.add("step-type-btn--active");
                 measurableStepFields.classList.remove("hidden");
-                stepTypeHelper.textContent = "Use this for steps where progress is counted by amount: pages, money, exercises.";
+                stepTypeHelper.textContent = "Подходит для шагов, где прогресс считается количеством: страниц, рублей, упражнений.";
             } else {
                 btnTypeMeasurable.classList.remove("step-type-btn--active");
                 btnTypeNormal.classList.add("step-type-btn--active");
                 measurableStepFields.classList.add("hidden");
-                stepTypeHelper.textContent = "Use this for a step that can simply be marked as done.";
+                stepTypeHelper.textContent = "Подходит для шага, который можно просто отметить выполненным.";
             }
             clearPartErrors();
         }
@@ -597,37 +597,37 @@ if (detailsToggle) {
             document.getElementById("errorPartTotal").classList.add("hidden");
         });
 
-        savePartButton.addEventListener(“click”, () => {
+        savePartButton.addEventListener("click", () => {
             clearPartErrors();
             let hasError = false;
 
             const title = modalPartTitle.value.trim();
-            if (title === “”) {
-                showFieldError(“errorPartTitle”, “Enter a step title”);
+            if (title === "") {
+                showFieldError("errorPartTitle", "Введите название шага");
                 hasError = true;
             }
 
-            if (selectedPartType === “MEASURABLE”) {
+            if (selectedPartType === "MEASURABLE") {
                 const unit = modalPartUnit.value.trim();
                 const done = Number(modalPartDone.value);
                 const totalStr = modalPartTotal.value.trim();
                 const total = Number(totalStr);
 
-                if (unit === “”) {
-                    showFieldError(“errorPartUnit”, “Enter units”);
+                if (unit === "") {
+                    showFieldError("errorPartUnit", "Укажите единицы измерения");
                     hasError = true;
                 }
 
-                if (totalStr === “” || total <= 0) {
-                    showFieldError(“errorPartTotal”, “Enter the total amount”);
+                if (totalStr === "" || total <= 0) {
+                    showFieldError("errorPartTotal", "Укажите общий объём");
                     hasError = true;
                 }
 
                 if (done < 0) {
-                    showFieldError(“errorPartDone”, “Value cannot be less than 0”);
+                    showFieldError("errorPartDone", "Значение не может быть меньше 0");
                     hasError = true;
-                } else if (totalStr !== “” && total > 0 && done > total) {
-                    showFieldError(“errorPartDone”, “Already done cannot be greater than the total amount”);
+                } else if (totalStr !== "" && total > 0 && done > total) {
+                    showFieldError("errorPartDone", "Уже готово не может быть больше общего объёма");
                     hasError = true;
                 }
             }
@@ -635,32 +635,32 @@ if (detailsToggle) {
             if (hasError) return;
 
             const deadline =
-                modalPartDeadline.value === “” ? null : modalPartDeadline.value;
+                modalPartDeadline.value === "" ? null : modalPartDeadline.value;
 
             let partPayload = {
                 title: title,
                 deadline: deadline,
-                type: “NORMAL”,
+                type: "NORMAL",
                 unit: null,
                 currentAmount: 0,
                 targetAmount: 0
             };
 
-            if (selectedPartType === “MEASURABLE”) {
+            if (selectedPartType === "MEASURABLE") {
                 partPayload = {
                     title: title,
                     deadline: deadline,
-                    type: “MEASURABLE”,
+                    type: "MEASURABLE",
                     unit: modalPartUnit.value.trim(),
                     currentAmount: Number(modalPartDone.value),
                     targetAmount: Number(modalPartTotal.value)
                 };
             }
 
-            fetch(`/goals/${goalId}/parts`, {
-                method: “POST”,
+            fetch(apiUrl(`/goals/${goalId}/parts`), {
+                method: "POST",
                 headers: {
-                    “Content-Type”: “application/json”
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(partPayload)
             })
@@ -679,7 +679,7 @@ if (detailsToggle) {
                 return;
             }
 
-            fetch(`/goals/${goalId}`, {
+            fetch(apiUrl(`/goals/${goalId}`), {
                 method: "DELETE"
             })
                 .then(() => {

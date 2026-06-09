@@ -55,7 +55,7 @@ goalElement.innerHTML = `
             return;
         }
 
-                fetch(`/goals/${goal.id}`, {
+                fetch(apiUrl(`/goals/${goal.id}`), {
                     method: "DELETE"
                 })
                     .then(response => {
@@ -92,7 +92,7 @@ goalElement.innerHTML = `
 }
 
 function loadGoals() {
-    fetch("/goals")
+    fetch(apiUrl("/goals"))
         .then(response => response.json())
         .then(goals => {
             syncTodayPlanWithGoals(goals);
@@ -117,7 +117,7 @@ function createGoal() {
         return;
     }
 
-    fetch("/goals", {
+    fetch(apiUrl("/goals"), {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

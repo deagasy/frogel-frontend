@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Frogel</title>
+
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+<h1>Frogel 🐸</h1>
+
+<div class="goal-create-form">
+    <input
+            id="titleInput"
+            type="text"
+            placeholder="Название цели">
+
+    <input
+            id="deadlineInput"
+            type="date"
+            placeholder="Дедлайн">
+
+    <button id="addGoalButton" type="button">
+        + Добавить цель
+    </button>
+</div>
+
+<section class="today-plan-card">
+    <div class="today-plan-header">
+        <div>
+            <h2>Мой план на сегодня</h2>
+            <p>
+                Сфокусируйся на 1–3 шагах, которые продвинут цели вперед.
+            </p>
+        </div>
+
+        <span id="todayPlanCounter" class="today-plan-counter">
+            0/3
+        </span>
+    </div>
+
+    <div id="todayPlanList" class="today-plan-list"></div>
+
+    <button
+            id="dayResultsButton"
+            class="day-results-button hidden"
+            type="button">
+        Итоги дня →
+    </button>
+</section>
+
+<div id="dayResultsModal" class="modal hidden">
+    <div class="modal-content day-results-modal-content">
+        <div class="day-results-modal-header">
+            <div>
+                <h2>Итоги дня</h2>
+                <p>
+                    Здесь собираются шаги, которые уже прошли через сегодняшний план.
+                </p>
+            </div>
+
+            <button
+                    id="closeDayResultsButton"
+                    class="day-results-close-button"
+                    type="button"
+                    aria-label="Закрыть итоги дня">
+                ×
+            </button>
+        </div>
+
+        <div class="day-results-section">
+            <h3>Пройдено</h3>
+            <div id="dayResultsDoneList"></div>
+        </div>
+
+        <div class="day-results-section">
+            <h3>Ещё в процессе</h3>
+            <div id="dayResultsInProgressList"></div>
+        </div>
+    </div>
+</div>
+
+<section id="attentionBlock" class="attention-card hidden">
+    <div class="attention-header">
+        <div>
+            <h2>Требуют внимания</h2>
+            <p>
+                Цели, к которым стоит вернуться.
+            </p>
+        </div>
+
+        <span id="attentionCounter" class="attention-counter">
+            0
+        </span>
+    </div>
+
+    <div id="attentionList" class="attention-list"></div>
+
+    <button
+            id="showAllAttentionButton"
+            class="attention-show-all hidden">
+        Показать все
+    </button>
+</section>
+
+<div id="goals"></div>
+
+<script src="deadlineUtils.js"></script>
+<script src="todayPlan.js"></script>
+<script src="attention.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

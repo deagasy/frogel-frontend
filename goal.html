@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Frogel — цель</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main class="goal-page">
+    <div class="goal-top-actions">
+        <a class="back-link" href="/">← Назад к целям</a>
+
+        <button id="deleteGoalButton" class="danger-button" type="button">
+            Удалить цель
+        </button>
+    </div>
+
+    <section class="goal-hero">
+
+        <h1 id="goalTitle">Загрузка цели...</h1>
+
+        <div id="routePointCard" class="route-point route-point-empty">
+            <div class="route-point-content">
+                <div>
+                    <span class="route-point-label">Срок цели</span>
+
+                    <strong id="goalDeadline">
+                        Без срока
+                    </strong>
+
+                    <small id="routePointStatus">
+                        Срок можно добавить позже
+                    </small>
+                </div>
+
+                <button
+                        id="editDeadlineButton"
+                        class="route-point-edit-button"
+                        type="button">
+                    Изменить
+                </button>
+            </div>
+        </div>
+
+        <p>Прогресс: <span id="goalProgress"></span>%</p>
+
+        <div class="progress-bar">
+            <div id="goalProgressFill" class="progress-fill"></div>
+        </div>
+
+        <p id="goalPartsSummary"></p>
+    </section>
+
+    <div class="goal-layout">
+        <div class="goal-main-column">
+
+            <section class="goal-section" id="goalPartsSection">
+                <div class="section-header">
+                    <h2 id="goalPartsTitle">Шаги к цели</h2>
+
+                    <button id="openAddPartModalButton" type="button">
+                        + Добавить
+                    </button>
+                </div>
+                <div id="goalParts"></div>
+            </section>
+
+        </div>
+
+        <aside class="goal-side-column">
+            <section class="goal-section next-step-card">
+                <h2>Следующий шаг</h2>
+
+                <p id="nextStepText"></p>
+
+                <button
+                        id="planTodayButton"
+                        class="secondary-button"
+                        type="button">
+                    Добавить в план на сегодня
+                </button>
+            </section>
+        </aside>
+    </div>
+
+    <div id="addPartModal" class="modal hidden">
+        <div class="modal-content add-step-modal">
+
+            <div class="add-step-modal-header">
+                <div>
+                    <h2>Новый шаг к цели</h2>
+                    <p>
+                        Добавь маленький шаг, который поможет цели двигаться вперёд.
+                    </p>
+                </div>
+
+                <button
+                        id="closePartModalButton"
+                        class="modal-close-button"
+                        type="button">
+                    ×
+                </button>
+            </div>
+
+            <div class="add-step-field">
+                <label for="modalPartTitle">Название шага</label>
+
+                <input
+                        type="text"
+                        id="modalPartTitle"
+                        placeholder="Например: написать введение">
+                <span class="field-error hidden" id="errorPartTitle"></span>
+            </div>
+
+            <div class="add-step-field">
+                <label for="modalPartDeadline">Срок шага</label>
+
+                <input
+                        type="date"
+                        id="modalPartDeadline"
+                        class="add-step-date-input">
+            </div>
+
+            <div class="add-step-field">
+                <label>Вид шага</label>
+                <div class="step-type-toggle">
+                    <button type="button" id="btnTypeNormal" class="step-type-btn step-type-btn--active">Regular step</button>
+                    <button type="button" id="btnTypeMeasurable" class="step-type-btn">Measurable step</button>
+                </div>
+                <p id="stepTypeHelper" class="step-type-helper">Use this for a step that can simply be marked as done.</p>
+            </div>
+
+            <div id="measurableStepFields" class="measurable-fields hidden">
+                <div class="add-step-field">
+                    <div class="add-step-label-row">
+                        <label for="modalPartUnit">Единицы</label>
+
+                        <button
+                                type="button"
+                                class="field-help-button"
+                                title="Напиши слово так, как оно звучит после числа: страниц, рублей, упражнений. Например: 10 страниц, 500 рублей, 20 упражнений.">
+                            !
+                        </button>
+                    </div>
+
+                    <input
+                            type="text"
+                            id="modalPartUnit"
+                            placeholder="Например: страниц">
+                    <span class="field-error hidden" id="errorPartUnit"></span>
+                </div>
+
+                <div class="add-step-grid">
+                    <div class="add-step-field">
+                        <label for="modalPartDone">Уже готово</label>
+
+                        <input
+                                type="number"
+                                id="modalPartDone"
+                                min="0"
+                                value="0">
+                        <span class="field-error hidden" id="errorPartDone"></span>
+                    </div>
+
+                    <div class="add-step-field">
+                        <label for="modalPartTotal">Всего</label>
+
+                        <input
+                                type="number"
+                                id="modalPartTotal"
+                                min="1"
+                                placeholder="100">
+                        <span class="field-error hidden" id="errorPartTotal"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button
+                    id="savePartButton"
+                    class="add-step-submit-button"
+                    type="button">
+                Добавить
+            </button>
+
+        </div>
+    </div>
+
+    <div id="addProgressModal" class="modal hidden">
+        <div class="modal-content add-progress-modal">
+
+            <div class="add-step-modal-header">
+                <div>
+                    <h2>Добавить прогресс</h2>
+                    <p id="addProgressSummary">
+                        Сейчас: 0 из 0
+                    </p>
+                </div>
+
+                <button
+                        id="closeProgressModalButton"
+                        class="modal-close-button"
+                        type="button">
+                    ×
+                </button>
+            </div>
+
+            <div class="add-step-field">
+                <label for="progressAmountInput">Сколько добавить?</label>
+
+                <input
+                        type="number"
+                        id="progressAmountInput"
+                        min="1"
+                        placeholder="Например: 8">
+            </div>
+
+            <button
+                    id="saveProgressButton"
+                    class="add-step-submit-button"
+                    type="button">
+                Добавить
+            </button>
+
+        </div>
+    </div>
+
+    <div id="editDeadlineModal" class="modal hidden">
+        <div class="modal-content deadline-modal-content">
+            <h2>Изменить срок цели</h2>
+
+            <p class="modal-hint">
+                Выбери новую дату. Это поможет Frogel подсказывать, сколько времени ещё в запасе.
+            </p>
+
+            <input
+                    type="date"
+                    id="editDeadlineInput"
+                    class="deadline-date-input">
+
+            <div class="modal-actions">
+                <button
+                        id="cancelDeadlineButton"
+                        class="secondary-button"
+                        type="button">
+                    Отмена
+                </button>
+
+                <button
+                        id="saveDeadlineButton"
+                        type="button">
+                    Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="todayPlan.js"></script>
+<script src="deadlineUtils.js"></script>
+<script src="goal.js"></script>
+
+</body>
+</html>

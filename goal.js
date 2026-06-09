@@ -1,0 +1,689 @@
+function renderRoutePoint(deadline) {
+    const routePointCard = document.getElementById("routePointCard");
+    const goalDeadline = document.getElementById("goalDeadline");
+    const routePointStatus = document.getElementById("routePointStatus");
+
+    const status = getRoutePointStatus(deadline, "Срок можно добавить позже");
+
+    goalDeadline.innerText = formatRoutePointDate(deadline);
+    routePointStatus.innerText = status.text;
+
+    routePointCard.className = `route-point ${status.className}`;
+}
+
+const params = new URLSearchParams(window.location.search);
+
+const goalId = params.get("id");
+
+fetch(`/goals/${goalId}`)
+    .then(response => response.json())
+    .then(goal => {
+        document.getElementById("goalTitle").innerText =
+            goal.title;
+
+        renderRoutePoint(goal.deadline);
+
+        let currentDeadline = goal.deadline;
+
+        const editDeadlineButton =
+            document.getElementById("editDeadlineButton");
+
+        const editDeadlineModal =
+            document.getElementById("editDeadlineModal");
+
+        const editDeadlineInput =
+            document.getElementById("editDeadlineInput");
+
+        const cancelDeadlineButton =
+            document.getElementById("cancelDeadlineButton");
+
+        const saveDeadlineButton =
+            document.getElementById("saveDeadlineButton");
+
+        editDeadlineButton.addEventListener("click", () => {
+            editDeadlineInput.value = currentDeadline || "";
+            editDeadlineModal.classList.remove("hidden");
+            editDeadlineInput.focus();
+        });
+
+        cancelDeadlineButton.addEventListener("click", () => {
+            editDeadlineModal.classList.add("hidden");
+        });
+
+        editDeadlineModal.addEventListener("click", (event) => {
+            if (event.target === editDeadlineModal) {
+                editDeadlineModal.classList.add("hidden");
+            }
+        });
+
+        saveDeadlineButton.addEventListener("click", () => {
+            const newDeadline =
+                editDeadlineInput.value === "" ? null : editDeadlineInput.value;
+
+            saveDeadlineButton.disabled = true;
+            saveDeadlineButton.innerText = "Сохраняем...";
+
+            fetch(`/goals/${goalId}/deadline`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    deadline: newDeadline
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Не удалось сохранить срок");
+                    }
+
+                    if (response.status === 204) {
+                        return {
+                            deadline: newDeadline
+                        };
+                    }
+
+                    return response.json();
+                })
+                .then(updatedGoal => {
+                    currentDeadline = updatedGoal.deadline;
+                    renderRoutePoint(currentDeadline);
+                    editDeadlineModal.classList.add("hidden");
+                })
+                .catch(() => {
+                    alert("Не удалось сохранить срок. Попробуй ещё раз 🌸");
+                })
+                .finally(() => {
+                    saveDeadlineButton.disabled = false;
+                    saveDeadlineButton.innerText = "Сохранить";
+                });
+        });
+
+        document.getElementById("goalProgress").innerText =
+            goal.progressPercent;
+
+        document.getElementById("goalProgressFill").style.width =
+            goal.progressPercent + "%";
+
+        const completedPartsCount =
+            goal.parts.filter(part => part.completed).length;
+
+        const totalPartsCount = goal.parts.length;
+
+        document.getElementById("goalPartsSummary").innerText =
+            `${completedPartsCount} из ${totalPartsCount} шагов цели завершено`;
+
+        const nextPart =
+            goal.parts.find(part => !part.completed);
+
+        const planTodayButton =
+            document.getElementById("planTodayButton");
+
+        if (goal.parts.length === 0) {
+
+            document.getElementById("nextStepText").innerHTML =
+                `
+                <strong>Добавь первый шаг 🌱</strong>
+                <br><br>
+                Пока цель не разбита на части, Frogel не может предложить следующий шаг.
+                `;
+
+            planTodayButton.style.display = "none";
+
+        } else if (nextPart) {
+
+            document.getElementById("nextStepText").innerText =
+                nextPart.title;
+
+            planTodayButton.style.display = "block";
+
+        } else {
+
+            document.getElementById("nextStepText").innerHTML =
+                `
+                <strong>Цель выполнена🎉</strong>
+                <br><br>
+                Все шаги цели выполнены.
+
+                <br><br>
+
+                Можно отпраздновать победу
+                или поставить новую вершину.
+                `;
+
+            planTodayButton.style.display = "none";
+        }
+
+        planTodayButton.addEventListener("click", () => {
+            const nextPartIndex =
+                goal.parts.findIndex(part => !part.completed);
+
+            if (nextPartIndex === -1) {
+                alert("У этой цели пока нет следующего шага 🌿");
+                return;
+            }
+
+            const step = {
+                id: `${goal.id}-${nextPartIndex}`,
+                goalId: goal.id,
+                goalTitle: goal.title,
+                partIndex: nextPartIndex,
+                title: goal.parts[nextPartIndex].title,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            addStepToTodayPlan(step);
+        });
+
+        const goalPartsDiv = document.getElementById("goalParts");
+
+        const goalPartsTitle =
+            document.getElementById("goalPartsTitle");
+
+        if (goal.parts.length === 0) {
+            goalPartsTitle.innerText = "Пока нет шагов цели";
+
+            goalPartsDiv.innerHTML = `
+                <p class="empty-state">
+                    Добавь первый маленький шаг, чтобы цель начала двигаться 🌱
+                </p>
+            `;
+        }
+
+        function isMeasurablePart(part) {
+            return part.type === "MEASURABLE";
+        }
+
+        function formatMeasuredPartText(part) {
+            const currentAmount = part.currentAmount || 0;
+            const targetAmount = part.targetAmount || 0;
+            const unit = part.unit || "";
+
+            return `${currentAmount} из ${targetAmount} ${unit}`.trim();
+        }
+
+        const addProgressModal =
+            document.getElementById("addProgressModal");
+
+        const closeProgressModalButton =
+            document.getElementById("closeProgressModalButton");
+
+        const progressAmountInput =
+            document.getElementById("progressAmountInput");
+
+        const addProgressSummary =
+            document.getElementById("addProgressSummary");
+
+        const saveProgressButton =
+            document.getElementById("saveProgressButton");
+
+        let selectedMeasuredPartIndex = null;
+
+        function closeAddProgressModal() {
+            addProgressModal.classList.add("hidden");
+            selectedMeasuredPartIndex = null;
+            progressAmountInput.value = "";
+        }
+
+        function openAddProgressModal(part, index) {
+            selectedMeasuredPartIndex = index;
+
+            addProgressSummary.innerText =
+                `Сейчас: ${formatMeasuredPartText(part)}`;
+
+            progressAmountInput.value = "";
+            addProgressModal.classList.remove("hidden");
+            progressAmountInput.focus();
+        }
+
+        closeProgressModalButton.addEventListener("click", () => {
+            closeAddProgressModal();
+        });
+
+        addProgressModal.addEventListener("click", (event) => {
+            if (event.target === addProgressModal) {
+                closeAddProgressModal();
+            }
+        });
+
+        saveProgressButton.addEventListener("click", () => {
+            const amountToAdd = Number(progressAmountInput.value);
+
+            if (!amountToAdd || amountToAdd <= 0) {
+                alert("Укажи, сколько добавить 🌿");
+                return;
+            }
+
+            if (selectedMeasuredPartIndex === null) {
+                alert("Не удалось определить шаг. Закрой окно и попробуй ещё раз 🌸");
+                return;
+            }
+
+            const selectedPart = goal.parts[selectedMeasuredPartIndex];
+
+            if (!selectedPart) {
+                alert("Не удалось найти шаг. Обнови страницу и попробуй ещё раз 🌸");
+                return;
+            }
+
+            const currentAmount = selectedPart.currentAmount || 0;
+            const targetAmount = selectedPart.targetAmount || 0;
+            const remainingAmount = targetAmount - currentAmount;
+
+            if (targetAmount > 0 && amountToAdd > remainingAmount) {
+                alert(`Осталось добавить только ${remainingAmount} ${selectedPart.unit || ""}`.trim());
+                return;
+            }
+
+            saveProgressButton.disabled = true;
+            saveProgressButton.innerText = "Сохраняем...";
+
+            fetch(`/goals/${goalId}/parts/${selectedMeasuredPartIndex}/amount`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    amountToAdd: amountToAdd
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Не удалось сохранить прогресс");
+                    }
+
+                    return response.json();
+                })
+                .then(() => {
+                    closeAddProgressModal();
+                    location.reload();
+                })
+                .catch(() => {
+                    alert("Не удалось добавить прогресс. Попробуй ещё раз 🌸");
+                })
+                .finally(() => {
+                    saveProgressButton.disabled = false;
+                    saveProgressButton.innerText = "Добавить";
+                });
+        });
+
+        if (goal.parts.length > 0) {
+        goal.parts.forEach((part, index) => {
+        const partElement = document.createElement("div");
+        partElement.className = "goal-part-row";
+
+        const isMeasurable = isMeasurablePart(part);
+        const measuredText = isMeasurable ? formatMeasuredPartText(part) : "";
+
+        partElement.innerHTML = `
+            <div class="goal-part-left">
+                <label class="goal-part-label">
+                    <input
+                        type="checkbox"
+                        ${part.completed ? "checked" : ""}>
+
+                    <span class="goal-part-text">
+                        <span class="${part.completed ? "completed-part" : ""}">
+                            ${part.title}
+                        </span>
+
+                        ${
+                            isMeasurable && !part.completed
+                                ? `<small class="goal-part-measured-text">${measuredText}</small>`
+                                : ""
+                        }
+                    </span>
+                </label>
+
+                ${
+                    isMeasurable && part.completed
+                        ? `<div class="goal-part-details hidden">${measuredText}</div>`
+                        : ""
+                }
+            </div>
+
+            <div class="goal-part-actions">
+                ${
+                    isMeasurable && !part.completed
+                        ? `<button
+                                type="button"
+                                class="goal-part-progress-button">
+                            + Добавить
+                        </button>`
+                        : ""
+                }
+
+                ${
+                    isMeasurable && part.completed
+                        ? `<button
+                                type="button"
+                                class="goal-part-details-toggle"
+                                aria-label="Показать прогресс">
+                            ⌄
+                        </button>`
+                        : ""
+                }
+            </div>
+        `;
+
+        const checkbox = partElement.querySelector("input");
+
+        const deleteButton = document.createElement("button");
+            deleteButton.innerText = "✕️";
+            deleteButton.className = "delete-button icon-delete-button";
+
+            deleteButton.addEventListener("click", () => {
+
+            if (!confirm("Удалить шаг?")) {
+                return;
+            }
+
+                fetch(`/goals/${goalId}/parts/${index}`, {
+                    method: "DELETE"
+                })
+                    .then(() => {
+                        location.reload();
+                    });
+            });
+
+const actionsContainer =
+    partElement.querySelector(".goal-part-actions");
+
+const progressButton =
+    partElement.querySelector(".goal-part-progress-button");
+
+if (progressButton) {
+    progressButton.addEventListener("click", () => {
+        openAddProgressModal(part, index);
+    });
+}
+
+const detailsToggle =
+    partElement.querySelector(".goal-part-details-toggle");
+
+if (detailsToggle) {
+    detailsToggle.addEventListener("click", () => {
+        const details =
+            partElement.querySelector(".goal-part-details");
+
+        details.classList.toggle("hidden");
+
+        detailsToggle.innerText =
+            details.classList.contains("hidden") ? "⌄" : "⌃";
+    });
+}
+
+            checkbox.addEventListener("change", () => {
+                fetch(`/goals/${goalId}/parts/${index}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        completed: checkbox.checked
+                    })
+                })
+                    .then(response => response.json())
+                    .then(updatedGoal => {
+                        document.getElementById("goalProgress").innerText =
+                            updatedGoal.progressPercent;
+
+                        document.getElementById("goalProgressFill").style.width =
+                            updatedGoal.progressPercent + "%";
+
+                        const completedPartsCount =
+                            updatedGoal.parts.filter(part => part.completed).length;
+
+                        const totalPartsCount = updatedGoal.parts.length;
+
+                        document.getElementById("goalPartsSummary").innerText =
+                            `${completedPartsCount} из ${totalPartsCount} шагов цели завершено`;
+
+                        const nextPart =
+                            updatedGoal.parts.find(part => !part.completed);
+
+                        if (nextPart) {
+
+                            document.getElementById("nextStepText").innerText =
+                                nextPart.title;
+
+                            planTodayButton.style.display = "block";
+
+                        } else {
+
+                            document.getElementById("nextStepText").innerHTML =
+                                `
+                                Цель достигнута 🎉
+                                <br><br>
+                                Все шаги выполнены.
+                                Можно отпраздновать победу
+                                или поставить новую вершину.
+                                `;
+
+                            planTodayButton.style.display = "none";
+                        }
+
+                         const partTitle = partElement.querySelector("span");
+
+                         if (checkbox.checked) {
+                             partTitle.classList.add("completed-part");
+                         } else {
+                             partTitle.classList.remove("completed-part");
+                         }
+                    });
+            });
+
+            actionsContainer.appendChild(deleteButton);
+            goalPartsDiv.appendChild(partElement);
+        });
+        }
+
+        const modal =
+            document.getElementById("addPartModal");
+
+        const openModalButton =
+            document.getElementById("openAddPartModalButton");
+
+        const closePartModalButton =
+            document.getElementById("closePartModalButton");
+
+        const savePartButton =
+            document.getElementById("savePartButton");
+
+        const modalPartTitle =
+            document.getElementById("modalPartTitle");
+
+        const modalPartDeadline =
+            document.getElementById("modalPartDeadline");
+
+        let selectedPartType = "NORMAL";
+
+        const btnTypeNormal =
+            document.getElementById("btnTypeNormal");
+
+        const btnTypeMeasurable =
+            document.getElementById("btnTypeMeasurable");
+
+        const stepTypeHelper =
+            document.getElementById("stepTypeHelper");
+
+        const measurableStepFields =
+            document.getElementById("measurableStepFields");
+
+        const modalPartUnit =
+            document.getElementById("modalPartUnit");
+
+        const modalPartDone =
+            document.getElementById("modalPartDone");
+
+        const modalPartTotal =
+            document.getElementById("modalPartTotal");
+
+        function showFieldError(id, message) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = message;
+                el.classList.remove("hidden");
+            }
+        }
+
+        function clearPartErrors() {
+            ["errorPartTitle", "errorPartUnit", "errorPartDone", "errorPartTotal"].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = ""; el.classList.add("hidden"); }
+            });
+        }
+
+        function setPartType(type) {
+            selectedPartType = type;
+            if (type === "MEASURABLE") {
+                btnTypeNormal.classList.remove("step-type-btn--active");
+                btnTypeMeasurable.classList.add("step-type-btn--active");
+                measurableStepFields.classList.remove("hidden");
+                stepTypeHelper.textContent = "Use this for steps where progress is counted by amount: pages, money, exercises.";
+            } else {
+                btnTypeMeasurable.classList.remove("step-type-btn--active");
+                btnTypeNormal.classList.add("step-type-btn--active");
+                measurableStepFields.classList.add("hidden");
+                stepTypeHelper.textContent = "Use this for a step that can simply be marked as done.";
+            }
+            clearPartErrors();
+        }
+
+        function closeAddPartModal() {
+            modal.classList.add("hidden");
+        }
+
+        function resetAddPartModal() {
+            modalPartTitle.value = "";
+            modalPartDeadline.value = "";
+            modalPartUnit.value = "";
+            modalPartDone.value = "0";
+            modalPartTotal.value = "";
+            setPartType("NORMAL");
+            clearPartErrors();
+        }
+
+        openModalButton.addEventListener("click", () => {
+            resetAddPartModal();
+            modal.classList.remove("hidden");
+            modalPartTitle.focus();
+        });
+
+        closePartModalButton.addEventListener("click", () => {
+            closeAddPartModal();
+        });
+
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                closeAddPartModal();
+            }
+        });
+
+        btnTypeNormal.addEventListener("click", () => setPartType("NORMAL"));
+        btnTypeMeasurable.addEventListener("click", () => setPartType("MEASURABLE"));
+
+        modalPartTitle.addEventListener("input", () => {
+            document.getElementById("errorPartTitle").classList.add("hidden");
+        });
+        modalPartUnit.addEventListener("input", () => {
+            document.getElementById("errorPartUnit").classList.add("hidden");
+        });
+        modalPartDone.addEventListener("input", () => {
+            document.getElementById("errorPartDone").classList.add("hidden");
+        });
+        modalPartTotal.addEventListener("input", () => {
+            document.getElementById("errorPartTotal").classList.add("hidden");
+        });
+
+        savePartButton.addEventListener(“click”, () => {
+            clearPartErrors();
+            let hasError = false;
+
+            const title = modalPartTitle.value.trim();
+            if (title === “”) {
+                showFieldError(“errorPartTitle”, “Enter a step title”);
+                hasError = true;
+            }
+
+            if (selectedPartType === “MEASURABLE”) {
+                const unit = modalPartUnit.value.trim();
+                const done = Number(modalPartDone.value);
+                const totalStr = modalPartTotal.value.trim();
+                const total = Number(totalStr);
+
+                if (unit === “”) {
+                    showFieldError(“errorPartUnit”, “Enter units”);
+                    hasError = true;
+                }
+
+                if (totalStr === “” || total <= 0) {
+                    showFieldError(“errorPartTotal”, “Enter the total amount”);
+                    hasError = true;
+                }
+
+                if (done < 0) {
+                    showFieldError(“errorPartDone”, “Value cannot be less than 0”);
+                    hasError = true;
+                } else if (totalStr !== “” && total > 0 && done > total) {
+                    showFieldError(“errorPartDone”, “Already done cannot be greater than the total amount”);
+                    hasError = true;
+                }
+            }
+
+            if (hasError) return;
+
+            const deadline =
+                modalPartDeadline.value === “” ? null : modalPartDeadline.value;
+
+            let partPayload = {
+                title: title,
+                deadline: deadline,
+                type: “NORMAL”,
+                unit: null,
+                currentAmount: 0,
+                targetAmount: 0
+            };
+
+            if (selectedPartType === “MEASURABLE”) {
+                partPayload = {
+                    title: title,
+                    deadline: deadline,
+                    type: “MEASURABLE”,
+                    unit: modalPartUnit.value.trim(),
+                    currentAmount: Number(modalPartDone.value),
+                    targetAmount: Number(modalPartTotal.value)
+                };
+            }
+
+            fetch(`/goals/${goalId}/parts`, {
+                method: “POST”,
+                headers: {
+                    “Content-Type”: “application/json”
+                },
+                body: JSON.stringify(partPayload)
+            })
+                .then(() => {
+                    resetAddPartModal();
+                    closeAddPartModal();
+                    location.reload();
+                });
+        });
+
+        const deleteGoalButton =
+            document.getElementById("deleteGoalButton");
+
+        deleteGoalButton.addEventListener("click", () => {
+            if (!confirm("Удалить эту цель? Весь прогресс по ней пропадет.")) {
+                return;
+            }
+
+            fetch(`/goals/${goalId}`, {
+                method: "DELETE"
+            })
+                .then(() => {
+                    window.location.href = "/";
+                });
+        });
+    });

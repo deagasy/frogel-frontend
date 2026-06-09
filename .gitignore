@@ -1,0 +1,17 @@
+# Dependencies (if a build tool is added later)
+node_modules/
+
+# Build output (if a bundler is added later)
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log

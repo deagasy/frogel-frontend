@@ -1317,3 +1317,55 @@
             font-size: 12px;
             font-weight: 600;
         }
+
+        /* Main page layout — Мои цели block */
+        .my-goals-block {
+            background: #ffffff;
+            padding: 20px 20px 8px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 1px solid #eadcff;
+            box-shadow: 0 8px 24px rgba(180, 160, 255, 0.14);
+        }
+
+        .my-goals-header {
+            margin-bottom: 16px;
+        }
+
+        .my-goals-header h2 {
+            margin: 0 0 6px;
+            color: #24194f;
+            font-size: 20px;
+        }
+
+        .my-goals-header p {
+            margin: 0;
+            color: #7a6f91;
+            line-height: 1.45;
+        }
+
+        /* Main page layout — bottom row */
+        .bottom-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .bottom-row > .today-plan-card,
+        .bottom-row > .attention-card {
+            flex: 1;
+            min-width: 0;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 760px) {
+            .bottom-row {
+                flex-direction: column;
+            }
+
+            .bottom-row > .today-plan-card,
+            .bottom-row > .attention-card {
+                width: 100%;
+            }
+        }

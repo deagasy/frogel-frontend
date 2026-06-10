@@ -26,29 +26,62 @@
     </button>
 </div>
 
-<section class="today-plan-card">
-    <div class="today-plan-header">
-        <div>
-            <h2>Мой план на сегодня</h2>
-            <p>
-                Сфокусируйся на 1–3 шагах, которые продвинут цели вперед.
-            </p>
+<div class="my-goals-block">
+    <div class="my-goals-header">
+        <h2>Мои цели</h2>
+        <p>Все маршруты к большим вершинам собраны здесь.</p>
+    </div>
+    <div id="goals"></div>
+</div>
+
+<div class="bottom-row">
+    <section class="today-plan-card">
+        <div class="today-plan-header">
+            <div>
+                <h2>Мой план на сегодня</h2>
+                <p>
+                    Сфокусируйся на 1–3 шагах, которые продвинут цели вперед.
+                </p>
+            </div>
+
+            <span id="todayPlanCounter" class="today-plan-counter">
+                0/3
+            </span>
         </div>
 
-        <span id="todayPlanCounter" class="today-plan-counter">
-            0/3
-        </span>
-    </div>
+        <div id="todayPlanList" class="today-plan-list"></div>
 
-    <div id="todayPlanList" class="today-plan-list"></div>
+        <button
+                id="dayResultsButton"
+                class="day-results-button hidden"
+                type="button">
+            Итоги дня →
+        </button>
+    </section>
 
-    <button
-            id="dayResultsButton"
-            class="day-results-button hidden"
-            type="button">
-        Итоги дня →
-    </button>
-</section>
+    <section id="attentionBlock" class="attention-card hidden">
+        <div class="attention-header">
+            <div>
+                <h2>Требуют внимания</h2>
+                <p>
+                    Цели, к которым стоит вернуться.
+                </p>
+            </div>
+
+            <span id="attentionCounter" class="attention-counter">
+                0
+            </span>
+        </div>
+
+        <div id="attentionList" class="attention-list"></div>
+
+        <button
+                id="showAllAttentionButton"
+                class="attention-show-all hidden">
+            Показать все
+        </button>
+    </section>
+</div>
 
 <div id="dayResultsModal" class="modal hidden">
     <div class="modal-content day-results-modal-content">
@@ -80,31 +113,6 @@
         </div>
     </div>
 </div>
-
-<section id="attentionBlock" class="attention-card hidden">
-    <div class="attention-header">
-        <div>
-            <h2>Требуют внимания</h2>
-            <p>
-                Цели, к которым стоит вернуться.
-            </p>
-        </div>
-
-        <span id="attentionCounter" class="attention-counter">
-            0
-        </span>
-    </div>
-
-    <div id="attentionList" class="attention-list"></div>
-
-    <button
-            id="showAllAttentionButton"
-            class="attention-show-all hidden">
-        Показать все
-    </button>
-</section>
-
-<div id="goals"></div>
 
 <script src="api.js"></script>
 <script src="deadlineUtils.js"></script>

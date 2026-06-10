@@ -111,7 +111,7 @@ fetch(apiUrl(`/goals/${goalId}`))
         const totalPartsCount = goal.parts.length;
 
         document.getElementById("goalPartsSummary").innerText =
-            `${completedPartsCount} из ${totalPartsCount} шагов цели завершено`;
+            `${formatStepProgress(completedPartsCount, totalPartsCount)} цели завершено`;
 
         const nextPart =
             goal.parts.find(part => !part.completed);
@@ -474,7 +474,7 @@ if (detailsToggle) {
                         const totalPartsCount = updatedGoal.parts.length;
 
                         document.getElementById("goalPartsSummary").innerText =
-                            `${completedPartsCount} из ${totalPartsCount} шагов цели завершено`;
+                            `${formatStepProgress(completedPartsCount, totalPartsCount)} цели завершено`;
 
                         const nextPart =
                             updatedGoal.parts.find(part => !part.completed);

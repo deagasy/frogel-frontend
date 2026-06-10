@@ -19,7 +19,7 @@ function renderGoal(goal) {
     const stepsText =
         totalPartsCount === 0
             ? "Пока без шагов"
-            : `${totalPartsCount} шагов`;
+            : formatStepCount(totalPartsCount);
 
 goalElement.innerHTML = `
     <div class="goal-card-main">
@@ -30,7 +30,7 @@ goalElement.innerHTML = `
     </div>
 
         <div class="goal-card-progress-summary">
-            <span>${completedPartsCount} из ${totalPartsCount} шагов</span>
+            <span>${formatStepProgress(completedPartsCount, totalPartsCount)}</span>
             <strong>${goal.progressPercent}%</strong>
         </div>
 

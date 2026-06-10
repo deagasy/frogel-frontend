@@ -11,10 +11,13 @@
 <h1>Frogel 🐸</h1>
 
 <div class="goal-create-form">
-    <input
-            id="titleInput"
-            type="text"
-            placeholder="Название цели">
+    <div class="goal-title-field">
+        <input
+                id="titleInput"
+                type="text"
+                placeholder="Название цели">
+        <span id="goalTitleError" class="field-error hidden">Введите название цели</span>
+    </div>
 
     <input
             id="deadlineInput"

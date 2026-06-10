@@ -106,14 +106,18 @@ function loadGoals() {
 function createGoal() {
     const titleInput = document.getElementById("titleInput");
     const deadlineInput = document.getElementById("deadlineInput");
+    const goalTitleError = document.getElementById("goalTitleError");
 
     const title = titleInput.value;
     const deadline = deadlineInput.value;
 
     if (title.trim() === "") {
-        alert("Пожалуйста, введи название цели🌸");
+        goalTitleError.classList.remove("hidden");
+        titleInput.focus();
         return;
     }
+
+    goalTitleError.classList.add("hidden");
 
     fetch(apiUrl("/goals"), {
         method: "POST",
@@ -138,6 +142,10 @@ const addGoalButton = document.getElementById("addGoalButton");
 
 addGoalButton.addEventListener("click", () => {
     createGoal();
+});
+
+document.getElementById("titleInput").addEventListener("input", () => {
+    document.getElementById("goalTitleError").classList.add("hidden");
 });
 
 const dayResultsButton =

@@ -932,8 +932,14 @@
             display: flex;
             gap: 8px;
             margin-bottom: 24px;
-            align-items: center;
+            align-items: flex-start;
             flex-wrap: wrap;
+        }
+
+        .goal-title-field {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
         }
 
         #titleInput,
@@ -1382,10 +1388,11 @@
 
         /* Inline field errors */
         .field-error {
-            display: block;
             color: #c0392b;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: var(--font-xs);
+            font-weight: 400;
+            line-height: 16px;
+            margin-left: var(--space-3);
         }
 
         /* Step three-dot action menu */

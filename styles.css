@@ -1,3 +1,30 @@
+:root {
+    /* Spacing */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-8:  32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* Border radius */
+    --radius-sm:  8px;
+    --radius-md:  12px;
+    --radius-lg:  16px;
+    --radius-xl:  20px;
+    --radius-2xl: 24px;
+
+    /* Font sizes */
+    --font-xs:   12px;
+    --font-base: 16px;
+    --font-lg:   20px;
+    --font-xl:   24px;
+    --font-2xl:  32px;
+}
+
   body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -154,15 +181,19 @@
             display: grid;
             grid-template-columns: 1.4fr 0.8fr 1fr auto;
             align-items: center;
-            gap: 18px;
+            gap: var(--space-5);
 
             background: #ffffff;
-            padding: 18px 20px;
-            margin-bottom: 12px;
+            padding: var(--space-5) var(--space-6);
+            margin-bottom: var(--space-3);
 
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             border: 1px solid #eadcff;
             box-shadow: 0 8px 24px rgba(180, 160, 255, 0.14);
+        }
+
+        .my-goals-block .goal-card {
+            box-shadow: 0 2px 8px rgba(180, 160, 255, 0.10);
         }
 
         .goal-card-clickable {
@@ -183,19 +214,19 @@
         .goal-card h3 {
             margin: 0 0 4px;
             color: #24194f;
-            font-size: 18px;
+            font-size: var(--font-lg);
         }
 
         .goal-card-main {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: var(--space-4);
         }
 
         .goal-meta {
             margin: 0;
             color: #7a6f91;
-            font-size: 14px;
+            font-size: var(--font-xs);
         }
 
         .goal-card-progress-summary {
@@ -206,12 +237,12 @@
 
         .goal-card-progress-summary span {
             color: #7a6f91;
-            font-size: 13px;
+            font-size: var(--font-xs);
         }
 
         .goal-card-progress-summary strong {
             color: #24194f;
-            font-size: 18px;
+            font-size: var(--font-lg);
         }
 
         .goal-card-route-point {
@@ -223,15 +254,15 @@
         .goal-card-route-point strong {
             display: block;
             color: #24194f;
-            font-size: 14px;
+            font-size: var(--font-base);
         }
 
         .goal-card-route-label {
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: var(--space-1);
 
             color: #7a6f91;
-            font-size: 12px;
+            font-size: var(--font-xs);
             font-weight: 600;
         }
 
@@ -607,12 +638,17 @@
             width: 40px;
             height: 40px;
             padding: 0;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #ff9ed8, #9dcfff, #bba7ff);
-            color: white;
-            font-size: 22px;
+            border-radius: var(--radius-sm);
+            background: #f0eaff;
+            color: #6b4eff;
+            font-size: 20px;
             font-weight: 700;
             line-height: 1;
+        }
+
+        .icon-delete-button:hover {
+            background: #eadcff;
+            transform: none;
         }
 
         .goal-top-actions {

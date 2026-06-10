@@ -181,18 +181,58 @@ http://localhost:8080
 * Do not change Today Plan or Attention logic during layout-only tasks.
 * If Network shows no requests, check Console for JavaScript syntax errors first.
 
+## Frogel design system v0
+
+Frogel should gradually move toward a simple 4px-based visual system.
+
+Use sizes that are divisible by 4 whenever practical.
+
+Preferred spacing scale:
+
+* 4px
+* 8px
+* 12px
+* 16px
+* 20px
+* 24px
+* 32px
+* 40px
+* 48px
+* 64px
+
+Preferred font-size scale:
+
+* 12px — small labels, helper text, badges
+* 16px — default body text, inputs, buttons
+* 20px — card titles / section titles
+* 24px — important page section headings
+* 32px — main page title / hero title
+
+Avoid random font sizes like 13px, 15px, 17px, 18px, 21px unless there is a very strong reason.
+
+Preferred border-radius scale:
+
+* 8px — small controls, badges
+* 12px — inputs, small cards
+* 16px — standard cards
+* 20px — large cards
+* 24px — modals / hero blocks
+
+Preferred line-height should also feel systematic:
+
+* 16px for 12px text
+* 24px for 16px text
+* 28px or 32px for 20px/24px headings
+* 40px for 32px headings
+
+Important:
+Do not force the entire app into the system in one huge rewrite. Apply it gradually in small slices.
+
 ## Current next product direction
 
 Next planned slice:
-Main Page Layout v1
+Design Tokens v0 + Goal Cards Polish v1
 
-Desired main page order:
-
-1. Goal creation block
-2. Shared "Мои цели" block containing the existing goals list
-3. Below that, one row with:
-
-   * "Мой план на сегодня"
-   * "Требуют внимания"
-
-On small screens the row should become one column.
+* Add CSS custom properties (design tokens) to styles.css.
+* Polish goal cards to use the 4px-based font and spacing scale.
+* Keep existing layout structure and JavaScript behavior.

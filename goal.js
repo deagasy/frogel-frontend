@@ -710,16 +710,49 @@ if (detailsToggle) {
         const deleteGoalButton =
             document.getElementById("deleteGoalButton");
 
+        const deleteGoalModal =
+            document.getElementById("deleteGoalModal");
+
+        const cancelDeleteGoalButton =
+            document.getElementById("cancelDeleteGoalButton");
+
+        const confirmDeleteGoalButton =
+            document.getElementById("confirmDeleteGoalButton");
+
         deleteGoalButton.addEventListener("click", () => {
-            if (!confirm("Удалить эту цель? Весь прогресс по ней пропадет.")) {
-                return;
+            deleteGoalModal.classList.remove("hidden");
+        });
+
+        cancelDeleteGoalButton.addEventListener("click", () => {
+            deleteGoalModal.classList.add("hidden");
+        });
+
+        deleteGoalModal.addEventListener("click", (event) => {
+            if (event.target === deleteGoalModal) {
+                deleteGoalModal.classList.add("hidden");
             }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                deleteGoalModal.classList.add("hidden");
+            }
+        });
+
+        confirmDeleteGoalButton.addEventListener("click", () => {
+            confirmDeleteGoalButton.disabled = true;
+            confirmDeleteGoalButton.innerText = "Удаляем...";
 
             fetch(apiUrl(`/goals/${goalId}`), {
                 method: "DELETE"
             })
                 .then(() => {
                     window.location.href = "/";
+                })
+                .catch(() => {
+                    confirmDeleteGoalButton.disabled = false;
+                    confirmDeleteGoalButton.innerText = "Удалить";
+                    alert("Не удалось удалить цель. Попробуй ещё раз 🌸");
                 });
         });
     });

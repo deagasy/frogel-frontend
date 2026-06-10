@@ -1,3 +1,5 @@
+let pendingDeleteAction = null;
+
 function renderGoal(goal) {
     const goalsDiv = document.getElementById("goals");
 
@@ -51,27 +53,23 @@ goalElement.innerHTML = `
     deleteButton.addEventListener("click", (event) => {
         event.stopPropagation();
 
-        if (!confirm("Удалить эту цель? Весь прогресс по ней пропадет.")) {
-            return;
-        }
+        pendingDeleteAction = () => fetch(apiUrl(`/goals/${goal.id}`), {
+                method: "DELETE"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Не удалось удалить цель");
+                }
+                removeTodayPlanItemsByGoalId(goal.id);
+                goalElement.remove();
+                renderTodayPlan();
+                renderDayResults();
+            })
+            .catch(() => {
+                alert("Не удалось удалить цель. Попробуй ещё раз 🌸");
+            });
 
-                fetch(apiUrl(`/goals/${goal.id}`), {
-                    method: "DELETE"
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Не удалось удалить цель");
-                        }
-
-                        removeTodayPlanItemsByGoalId(goal.id);
-
-                        goalElement.remove();
-                        renderTodayPlan();
-                        renderDayResults();
-                    })
-                    .catch(() => {
-                        alert("Не удалось удалить цель. Попробуй ещё раз 🌸");
-                    });
+        deleteGoalModal.classList.remove("hidden");
     });
 
     goalElement.addEventListener("click", () => {
@@ -165,6 +163,43 @@ if (dayResultsButton && dayResultsModal && closeDayResultsButton) {
         if (event.target === dayResultsModal) {
             dayResultsModal.classList.add("hidden");
         }
+    });
+}
+
+const deleteGoalModal = document.getElementById("deleteGoalModal");
+const cancelDeleteGoalButton = document.getElementById("cancelDeleteGoalButton");
+const confirmDeleteGoalButton = document.getElementById("confirmDeleteGoalButton");
+
+if (deleteGoalModal && cancelDeleteGoalButton && confirmDeleteGoalButton) {
+    cancelDeleteGoalButton.addEventListener("click", () => {
+        deleteGoalModal.classList.add("hidden");
+        pendingDeleteAction = null;
+    });
+
+    deleteGoalModal.addEventListener("click", (event) => {
+        if (event.target === deleteGoalModal) {
+            deleteGoalModal.classList.add("hidden");
+            pendingDeleteAction = null;
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            deleteGoalModal.classList.add("hidden");
+            pendingDeleteAction = null;
+        }
+    });
+
+    confirmDeleteGoalButton.addEventListener("click", () => {
+        if (!pendingDeleteAction) return;
+        confirmDeleteGoalButton.disabled = true;
+        confirmDeleteGoalButton.innerText = "Удаляем...";
+        pendingDeleteAction().finally(() => {
+            confirmDeleteGoalButton.disabled = false;
+            confirmDeleteGoalButton.innerText = "Удалить";
+            deleteGoalModal.classList.add("hidden");
+            pendingDeleteAction = null;
+        });
     });
 }
 

@@ -520,13 +520,23 @@ if (detailsToggle) {
                             planTodayButton.style.display = "none";
                         }
 
-                         const partTitle = partElement.querySelector("span");
+                         const partTitle = partElement.querySelector(".goal-part-text > span");
 
                          if (checkbox.checked) {
                              partTitle.classList.add("completed-part");
                          } else {
                              partTitle.classList.remove("completed-part");
                          }
+
+                         const plan = loadTodayPlan();
+                         plan.items = plan.items.map(function(planItem) {
+                             if (String(planItem.goalId) === String(goalId) &&
+                                 Number(planItem.partIndex) === Number(index)) {
+                                 return Object.assign({}, planItem, { completed: checkbox.checked });
+                             }
+                             return planItem;
+                         });
+                         saveTodayPlan(plan);
                     });
             });
 

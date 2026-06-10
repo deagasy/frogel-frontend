@@ -1564,3 +1564,55 @@
                 width: 100%;
             }
         }
+
+        /* Toast notifications */
+        #frogel-toast-container {
+            position: fixed;
+            bottom: var(--space-6);
+            right: var(--space-6);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            pointer-events: none;
+        }
+
+        .frogel-toast {
+            background: #ffffff;
+            border: 1px solid #eadcff;
+            border-left: 3px solid #b89eff;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 16px rgba(100, 80, 160, 0.12);
+            padding: var(--space-3) var(--space-4);
+            font-size: var(--font-xs);
+            line-height: 16px;
+            color: #24194f;
+            max-width: 280px;
+            pointer-events: auto;
+
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .frogel-toast--visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .frogel-toast--success {
+            border-left-color: #7ec88a;
+        }
+
+        .frogel-toast--info {
+            border-left-color: #b89eff;
+        }
+
+        .frogel-toast--warning {
+            border-left-color: #f0c060;
+        }
+
+        .frogel-toast--error {
+            border-left-color: #f0a0b8;
+        }
+        }

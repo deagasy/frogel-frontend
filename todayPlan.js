@@ -59,12 +59,13 @@ function addStepToTodayPlan(step) {
     const todayPlan = loadTodayPlan();
 
     const alreadyInPlan = todayPlan.items.some(item =>
+        !item.completed &&
         String(item.goalId) === String(step.goalId) &&
         Number(item.partIndex) === Number(step.partIndex)
     );
 
     if (alreadyInPlan) {
-        alert("Этот шаг уже есть в плане на сегодня 🌿");
+        showFrogelToast("Этот шаг уже есть в плане на сегодня 🌿", "info");
         return;
     }
 
@@ -72,7 +73,7 @@ function addStepToTodayPlan(step) {
         todayPlan.items.push(step);
         saveTodayPlan(todayPlan);
 
-        alert("Шаг добавлен в план на сегодня 🌱");
+        showFrogelToast("Шаг добавлен в план на сегодня 🌱", "success");
         return;
     }
 
@@ -80,7 +81,7 @@ function addStepToTodayPlan(step) {
         todayPlan.items.findIndex(item => item.completed);
 
     if (completedStepIndex === -1) {
-        alert("В плане уже есть 3 шага. Сначала заверши один из них 🌸");
+        showFrogelToast("В плане уже есть 3 шага. Сначала заверши один из них 🌸", "warning");
         return;
     }
 
@@ -102,7 +103,7 @@ function addStepToTodayPlan(step) {
 
     saveTodayPlan(todayPlan);
 
-    alert("Готовый шаг ушёл в итоги дня, новый шаг добавлен в план 🌿");
+    showFrogelToast("Готовый шаг ушёл в итоги дня, новый шаг добавлен в план 🌿", "success");
 }
 
 function getTodayPlanItemKey(item) {
@@ -434,7 +435,7 @@ function renderTodayPlan() {
                 })
                 .catch(() => {
                     checkbox.checked = !checkbox.checked;
-                    alert("Не удалось обновить шаг в цели. Попробуй ещё раз 🌸");
+                    showFrogelToast("Не удалось обновить шаг в цели. Попробуй ещё раз 🌸", "error");
                 });
         });
 

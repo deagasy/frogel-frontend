@@ -443,7 +443,7 @@
             background: #f1e8ff;
             border-radius: 999px;
             overflow: hidden;
-            margin: 10px 0 16px;
+            margin: var(--space-3) 0 var(--space-4);
         }
 
         .progress-fill {
@@ -456,12 +456,12 @@
         .route-point {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: var(--space-1);
 
-            margin-top: 14px;
-            padding: 14px 16px;
+            margin-top: var(--space-4);
+            padding: var(--space-4);
 
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             border: 1px solid #eadcff;
 
             background: linear-gradient(135deg, #fff7fb, #f7f1ff);
@@ -481,13 +481,13 @@
         }
 
         .route-point-edit-button {
-            padding: 8px 12px;
-            border-radius: 12px;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-sm);
 
             background: rgba(111, 76, 255, 0.1);
             color: #5f3ee8;
 
-            font-size: 13px;
+            font-size: var(--font-xs);
             font-weight: 700;
 
             white-space: nowrap;
@@ -507,7 +507,7 @@
 
         .route-point strong {
             color: #3b2f63;
-            font-size: 15px;
+            font-size: var(--font-base);
         }
 
         .route-point small {
@@ -552,23 +552,45 @@
         .goal-section {
             background: #ffffff;
             border: 1px solid #eadcff;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 18px;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin-bottom: var(--space-5);
             box-shadow: 0 10px 30px rgba(180, 160, 255, 0.16);
         }
 
         .goal-hero h1 {
             margin-top: 0;
+            margin-bottom: var(--space-2);
             color: #3b2f63;
+            font-size: var(--font-2xl);
+            line-height: 1.2;
+        }
+
+        .goal-section h2 {
+            font-size: var(--font-lg);
+            margin: 0;
+            color: #24194f;
+        }
+
+        .goal-hero > p {
+            font-size: var(--font-base);
+            color: #7a6f91;
+            margin: var(--space-2) 0;
+            line-height: 1.5;
+        }
+
+        #goalProgress {
+            font-weight: 700;
+            color: #24194f;
+            font-size: var(--font-lg);
         }
 
         #goalParts > div {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 16px;
-            padding: 14px 0;
+            gap: var(--space-4);
+            padding: var(--space-4) 0;
             border-bottom: 1px solid #f1e8ff;
         }
 
@@ -659,21 +681,27 @@
         }
 
         .danger-button {
-            background: linear-gradient(135deg, #ff9ed8, #bba7ff);
-            color: white;
+            background: #fde8f2;
+            color: #9b2255;
+            border: 1px solid #f0b8d4;
+        }
+
+        .danger-button:hover {
+            background: #fbd5e8;
+            transform: none;
         }
 
         .goal-layout {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 18px;
+            gap: var(--space-5);
         }
 
         .goal-main-column,
         .goal-side-column {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: var(--space-5);
         }
 
         .hidden {
@@ -976,13 +1004,13 @@
             }
 
             .route-point-edit-button {
-                padding: 10px 14px;
-                border-radius: 12px;
+                padding: var(--space-2) var(--space-4);
+                border-radius: var(--radius-sm);
 
                 background: #e9e0ff;
                 color: #5f3ee8;
 
-                font-size: 13px;
+                font-size: var(--font-xs);
                 font-weight: 700;
 
                 white-space: nowrap;
@@ -1047,8 +1075,8 @@
             margin: 0 48px 8px 0;
 
             color: #24194f;
-            font-size: 28px;
-            line-height: 1.15;
+            font-size: var(--font-xl);
+            line-height: 1.2;
         }
 
         .add-step-modal-header p {
@@ -1254,14 +1282,14 @@
 
         .goal-part-measured-text {
             color: #7a6f91;
-            font-size: 13px;
+            font-size: var(--font-xs);
         }
 
         .goal-part-details {
             margin-left: 28px;
 
             color: #7a6f91;
-            font-size: 13px;
+            font-size: var(--font-xs);
         }
 
         .goal-part-actions {
@@ -1272,14 +1300,14 @@
 
         .goal-part-progress-button,
         .goal-part-details-toggle {
-            padding: 10px 12px;
-            border-radius: 12px;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-sm);
 
             background: #f0eaff;
             color: #5f3ee8;
 
-            font-size: 13px;
-            font-weight: 800;
+            font-size: var(--font-xs);
+            font-weight: 700;
         }
 
         .goal-part-progress-button:hover,
@@ -1352,6 +1380,48 @@
             color: #c0392b;
             font-size: 12px;
             font-weight: 600;
+        }
+
+        /* Goal page — specific button styles */
+        #openAddPartModalButton {
+            background: #8061e2;
+            color: white;
+            font-size: var(--font-base);
+        }
+
+        #openAddPartModalButton:hover {
+            background: #5f3ee8;
+        }
+
+        #saveDeadlineButton {
+            background: #8061e2;
+            color: white;
+        }
+
+        #saveDeadlineButton:hover {
+            background: #5f3ee8;
+        }
+
+        .modal-close-button {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: var(--radius-sm);
+            background: #f0eaff;
+            color: #5f3ee8;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .modal-close-button:hover {
+            background: #e2d8ff;
+            transform: none;
+        }
+
+        .next-step-card .secondary-button {
+            width: 100%;
+            margin-top: var(--space-3);
         }
 
         /* Main page layout — Мои цели block */

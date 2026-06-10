@@ -91,7 +91,7 @@ fetch(apiUrl(`/goals/${goalId}`))
                     editDeadlineModal.classList.add("hidden");
                 })
                 .catch(() => {
-                    alert("Не удалось сохранить срок. Попробуй ещё раз 🌸");
+                    showFrogelToast("Не удалось сохранить срок. Попробуй ещё раз 🌸", "error");
                 })
                 .finally(() => {
                     saveDeadlineButton.disabled = false;
@@ -159,7 +159,7 @@ fetch(apiUrl(`/goals/${goalId}`))
                 goal.parts.findIndex(part => !part.completed);
 
             if (nextPartIndex === -1) {
-                alert("У этой цели пока нет следующего шага 🌿");
+                showFrogelToast("У этой цели пока нет следующего шага 🌿", "info");
                 return;
             }
 
@@ -274,14 +274,14 @@ fetch(apiUrl(`/goals/${goalId}`))
             }
 
             if (selectedMeasuredPartIndex === null) {
-                alert("Не удалось определить шаг. Закрой окно и попробуй ещё раз 🌸");
+                showFrogelToast("Не удалось определить шаг. Закрой окно и попробуй ещё раз 🌸", "error");
                 return;
             }
 
             const selectedPart = goal.parts[selectedMeasuredPartIndex];
 
             if (!selectedPart) {
-                alert("Не удалось найти шаг. Обнови страницу и попробуй ещё раз 🌸");
+                showFrogelToast("Не удалось найти шаг. Обнови страницу и попробуй ещё раз 🌸", "error");
                 return;
             }
 
@@ -319,7 +319,7 @@ fetch(apiUrl(`/goals/${goalId}`))
                     location.reload();
                 })
                 .catch(() => {
-                    alert("Не удалось добавить прогресс. Попробуй ещё раз 🌸");
+                    showFrogelToast("Не удалось добавить прогресс. Попробуй ещё раз 🌸", "error");
                 })
                 .finally(() => {
                     saveProgressButton.disabled = false;
@@ -783,7 +783,7 @@ if (detailsToggle) {
                 .catch(() => {
                     confirmDeleteGoalButton.disabled = false;
                     confirmDeleteGoalButton.innerText = "Удалить";
-                    alert("Не удалось удалить цель. Попробуй ещё раз 🌸");
+                    showFrogelToast("Не удалось удалить цель. Попробуй ещё раз 🌸", "error");
                 });
         });
 

@@ -66,7 +66,7 @@ goalElement.innerHTML = `
                 renderDayResults();
             })
             .catch(() => {
-                alert("Не удалось удалить цель. Попробуй ещё раз 🌸");
+                showFrogelToast("Не удалось удалить цель. Попробуй ещё раз 🌸", "error");
             });
 
         deleteGoalModal.classList.remove("hidden");

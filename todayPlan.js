@@ -358,9 +358,8 @@ function renderTodayPlan() {
     if (todayPlan.items.length === 0) {
         todayPlanList.innerHTML = `
             <div class="today-plan-empty">
-                Пока план пустой.
-                <br>
-                Открой цель и добавь подходящий шаг на сегодня.
+                <p class="empty-state-title">Пока план пустой</p>
+                <p class="empty-state-text">Открой цель и добавь подходящий шаг на сегодня.</p>
             </div>
         `;
 

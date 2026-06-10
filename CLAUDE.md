@@ -28,6 +28,21 @@ Use practical Russian UI words first:
 
 Do not overuse metaphors in functional labels.
 
+## Product language rule
+
+Do not overuse the expedition metaphor in functional UI copy.
+
+Use practical UI terms first:
+
+* цель
+* шаг
+* задача, where it fits naturally and does not make Frogel feel like Jira
+* план на сегодня
+* следующий шаг
+
+Avoid using "маршрут" as a common UI term.
+The expedition/mountain concept should stay mostly in visuals, illustrations, hero atmosphere, and subtle product feeling — not in every label or empty-state text.
+
 ## Visual style
 
 Frontend should keep the Frogel visual style:

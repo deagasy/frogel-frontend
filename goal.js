@@ -122,11 +122,7 @@ fetch(apiUrl(`/goals/${goalId}`))
         if (goal.parts.length === 0) {
 
             document.getElementById("nextStepText").innerHTML =
-                `
-                <strong>Добавь первый шаг 🌱</strong>
-                <br><br>
-                Пока цель не разбита на части, Frogel не может предложить следующий шаг.
-                `;
+                `<strong>Пока нет шагов</strong><br><br>Добавь первый шаг к этой цели.`;
 
             planTodayButton.style.display = "none";
 
@@ -140,16 +136,7 @@ fetch(apiUrl(`/goals/${goalId}`))
         } else {
 
             document.getElementById("nextStepText").innerHTML =
-                `
-                <strong>Цель выполнена🎉</strong>
-                <br><br>
-                Все шаги цели выполнены.
-
-                <br><br>
-
-                Можно отпраздновать победу
-                или поставить новую вершину.
-                `;
+                `<strong>Все шаги завершены</strong><br><br>Можно выдохнуть или добавить новый шаг, если цель продолжается.`;
 
             planTodayButton.style.display = "none";
         }
@@ -182,12 +169,11 @@ fetch(apiUrl(`/goals/${goalId}`))
             document.getElementById("goalPartsTitle");
 
         if (goal.parts.length === 0) {
-            goalPartsTitle.innerText = "Пока нет шагов цели";
-
             goalPartsDiv.innerHTML = `
-                <p class="empty-state">
-                    Добавь первый маленький шаг, чтобы цель начала двигаться 🌱
-                </p>
+                <div class="empty-state">
+                    <p class="empty-state-title">У цели пока нет шагов</p>
+                    <p class="empty-state-text">Добавь первый шаг, чтобы начать двигаться вперёд.</p>
+                </div>
             `;
         }
 
@@ -509,13 +495,7 @@ if (detailsToggle) {
                         } else {
 
                             document.getElementById("nextStepText").innerHTML =
-                                `
-                                Цель достигнута 🎉
-                                <br><br>
-                                Все шаги выполнены.
-                                Можно отпраздновать победу
-                                или поставить новую вершину.
-                                `;
+                                `<strong>Все шаги завершены</strong><br><br>Можно выдохнуть или добавить новый шаг, если цель продолжается.`;
 
                             planTodayButton.style.display = "none";
                         }

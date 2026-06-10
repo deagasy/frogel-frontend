@@ -219,6 +219,7 @@ fetch(apiUrl(`/goals/${goalId}`))
             document.getElementById("saveProgressButton");
 
         let selectedMeasuredPartIndex = null;
+        let pendingDeleteStepAction = null;
 
         function clearProgressError() {
             const el = document.getElementById("progressAmountError");
@@ -417,15 +418,16 @@ fetch(apiUrl(`/goals/${goalId}`))
         deleteMenuItem.innerText = "Удалить";
 
         deleteMenuItem.addEventListener("click", () => {
-            if (!confirm("Удалить шаг?")) {
-                return;
-            }
-            fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
-                method: "DELETE"
-            })
-                .then(() => {
-                    location.reload();
-                });
+            closeAllStepMenus();
+            pendingDeleteStepAction = () => {
+                fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
+                    method: "DELETE"
+                })
+                    .then(() => {
+                        location.reload();
+                    });
+            };
+            document.getElementById("deleteStepModal").classList.remove("hidden");
         });
 
         menu.appendChild(deleteMenuItem);
@@ -773,5 +775,42 @@ if (detailsToggle) {
                     confirmDeleteGoalButton.innerText = "Удалить";
                     alert("Не удалось удалить цель. Попробуй ещё раз 🌸");
                 });
+        });
+
+        const deleteStepModal =
+            document.getElementById("deleteStepModal");
+
+        const cancelDeleteStepButton =
+            document.getElementById("cancelDeleteStepButton");
+
+        const confirmDeleteStepButton =
+            document.getElementById("confirmDeleteStepButton");
+
+        cancelDeleteStepButton.addEventListener("click", () => {
+            deleteStepModal.classList.add("hidden");
+            pendingDeleteStepAction = null;
+        });
+
+        deleteStepModal.addEventListener("click", (event) => {
+            if (event.target === deleteStepModal) {
+                deleteStepModal.classList.add("hidden");
+                pendingDeleteStepAction = null;
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                deleteStepModal.classList.add("hidden");
+                pendingDeleteStepAction = null;
+            }
+        });
+
+        confirmDeleteStepButton.addEventListener("click", () => {
+            if (!pendingDeleteStepAction) return;
+            confirmDeleteStepButton.disabled = true;
+            confirmDeleteStepButton.innerText = "Удаляем...";
+            const action = pendingDeleteStepAction;
+            pendingDeleteStepAction = null;
+            action();
         });
     });

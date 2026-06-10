@@ -281,6 +281,32 @@
             </div>
         </div>
     </div>
+
+    <div id="deleteStepModal" class="modal hidden">
+        <div class="modal-content delete-goal-modal-content">
+            <h2>Удалить шаг?</h2>
+
+            <p class="modal-hint">
+                Этот шаг исчезнет из маршрута цели.
+            </p>
+
+            <div class="modal-actions">
+                <button
+                        id="cancelDeleteStepButton"
+                        class="secondary-button"
+                        type="button">
+                    Оставить
+                </button>
+
+                <button
+                        id="confirmDeleteStepButton"
+                        class="danger-button"
+                        type="button">
+                    Удалить
+                </button>
+            </div>
+        </div>
+    </div>
 </main>
 
 <script src="api.js"></script>

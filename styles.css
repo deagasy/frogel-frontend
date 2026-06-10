@@ -1382,6 +1382,82 @@
             font-weight: 600;
         }
 
+        /* Step three-dot action menu */
+        .step-menu-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-menu-trigger {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: var(--radius-sm);
+
+            background: transparent;
+            color: #7a6f91;
+
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .step-menu-trigger:hover {
+            background: #f0eaff;
+            color: #5f3ee8;
+            transform: none;
+        }
+
+        .step-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + var(--space-1));
+            z-index: 200;
+
+            min-width: 140px;
+            padding: var(--space-1);
+
+            background: #ffffff;
+            border: 1px solid #eadcff;
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 24px rgba(120, 90, 255, 0.14);
+        }
+
+        .step-menu-item {
+            display: block;
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+
+            border-radius: var(--radius-sm);
+
+            background: transparent;
+            color: #24194f;
+
+            font-size: var(--font-xs);
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .step-menu-item:hover {
+            background: #f8f4ff;
+            transform: none;
+        }
+
+        .step-menu-item--delete {
+            color: #9b2255;
+        }
+
+        .step-menu-item--delete:hover {
+            background: #fde8f2;
+        }
+
         /* Goal page — specific button styles */
         #openAddPartModalButton {
             background: #8061e2;

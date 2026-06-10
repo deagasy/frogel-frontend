@@ -308,6 +308,18 @@ fetch(apiUrl(`/goals/${goalId}`))
                 });
         });
 
+        function closeAllStepMenus() {
+            document.querySelectorAll(".step-menu").forEach(function(m) {
+                m.classList.add("hidden");
+            });
+        }
+
+        document.addEventListener("click", closeAllStepMenus);
+
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape") { closeAllStepMenus(); }
+        });
+
         if (goal.parts.length > 0) {
         goal.parts.forEach((part, index) => {
         const partElement = document.createElement("div");
@@ -369,23 +381,47 @@ fetch(apiUrl(`/goals/${goalId}`))
 
         const checkbox = partElement.querySelector("input");
 
-        const deleteButton = document.createElement("button");
-            deleteButton.innerText = "✕️";
-            deleteButton.className = "delete-button icon-delete-button";
+        const menuWrapper = document.createElement("div");
+        menuWrapper.className = "step-menu-wrapper";
 
-            deleteButton.addEventListener("click", () => {
+        const menuTrigger = document.createElement("button");
+        menuTrigger.type = "button";
+        menuTrigger.className = "step-menu-trigger";
+        menuTrigger.setAttribute("aria-label", "Действия с шагом");
+        menuTrigger.innerText = "⋮";
 
+        const menu = document.createElement("div");
+        menu.className = "step-menu hidden";
+
+        const deleteMenuItem = document.createElement("button");
+        deleteMenuItem.type = "button";
+        deleteMenuItem.className = "step-menu-item step-menu-item--delete";
+        deleteMenuItem.innerText = "Удалить";
+
+        deleteMenuItem.addEventListener("click", () => {
             if (!confirm("Удалить шаг?")) {
                 return;
             }
+            fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
+                method: "DELETE"
+            })
+                .then(() => {
+                    location.reload();
+                });
+        });
 
-                fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
-                    method: "DELETE"
-                })
-                    .then(() => {
-                        location.reload();
-                    });
-            });
+        menu.appendChild(deleteMenuItem);
+        menuWrapper.appendChild(menuTrigger);
+        menuWrapper.appendChild(menu);
+
+        menuTrigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = !menu.classList.contains("hidden");
+            closeAllStepMenus();
+            if (!isOpen) {
+                menu.classList.remove("hidden");
+            }
+        });
 
 const actionsContainer =
     partElement.querySelector(".goal-part-actions");
@@ -474,7 +510,7 @@ if (detailsToggle) {
                     });
             });
 
-            actionsContainer.appendChild(deleteButton);
+            actionsContainer.appendChild(menuWrapper);
             goalPartsDiv.appendChild(partElement);
         });
         }

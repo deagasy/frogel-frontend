@@ -3,6 +3,9 @@ let pendingDeleteAction = null;
 function renderGoal(goal) {
     const goalsDiv = document.getElementById("goals");
 
+    const existingEmpty = goalsDiv.querySelector(".empty-state");
+    if (existingEmpty) existingEmpty.remove();
+
     const goalElement = document.createElement("div");
     goalElement.className = "goal-card goal-card-clickable";
     goalElement.tabIndex = 0;
@@ -62,6 +65,14 @@ goalElement.innerHTML = `
                 }
                 removeTodayPlanItemsByGoalId(goal.id);
                 goalElement.remove();
+                if (goalsDiv.children.length === 0) {
+                    goalsDiv.innerHTML = `
+                        <div class="empty-state">
+                            <p class="empty-state-title">Пока здесь тихо</p>
+                            <p class="empty-state-text">Добавь первую цель — она появится в этом блоке.</p>
+                        </div>
+                    `;
+                }
                 renderTodayPlan();
                 renderDayResults();
             })
@@ -100,6 +111,16 @@ function loadGoals() {
             goals.forEach(goal => {
                 renderGoal(goal);
             });
+
+            if (goals.length === 0) {
+                const goalsDiv = document.getElementById("goals");
+                goalsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <p class="empty-state-title">Пока здесь тихо</p>
+                        <p class="empty-state-text">Добавь первую цель — она появится в этом блоке.</p>
+                    </div>
+                `;
+            }
         });
 }
 

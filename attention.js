@@ -50,26 +50,30 @@ const ATTENTION_SOON_DAYS = 7;
         return parts.some(part => !part.completed);
     }
 
-    function formatAttentionDeadlineText(daysUntilDeadline) {
+    function formatDeadlineReasonText(daysUntilDeadline, prefix) {
         if (daysUntilDeadline < 0) {
             const daysAgo = Math.abs(daysUntilDeadline);
 
             if (daysAgo === 1) {
-                return "Срок прошёл вчера";
+                return `Срок ${prefix} прошёл вчера`;
             }
 
-            return `Срок прошёл ${daysAgo} ${pluralizeDays(daysAgo)} назад`;
+            return `Срок ${prefix} прошёл ${daysAgo} ${pluralizeDays(daysAgo)} назад`;
         }
 
         if (daysUntilDeadline === 0) {
-            return "Срок сегодня";
+            return `Срок ${prefix} сегодня`;
         }
 
         if (daysUntilDeadline === 1) {
-            return "Срок завтра";
+            return `Срок ${prefix} завтра`;
         }
 
-        return `Срок через ${daysUntilDeadline} ${pluralizeDays(daysUntilDeadline)}`;
+        return `Срок ${prefix} через ${daysUntilDeadline} ${pluralizeDays(daysUntilDeadline)}`;
+    }
+
+    function formatAttentionDeadlineText(daysUntilDeadline) {
+        return formatDeadlineReasonText(daysUntilDeadline, "цели");
     }
 
     function getAttentionReason(goal) {
@@ -104,7 +108,7 @@ const ATTENTION_SOON_DAYS = 7;
             return {
                 priority: 3,
                 className: "attention-no-step",
-                text: "Нет следующего шага",
+                text: "У цели нет следующего шага",
                 daysUntilDeadline: 9999
             };
         }
@@ -112,22 +116,74 @@ const ATTENTION_SOON_DAYS = 7;
         return null;
     }
 
+    function getStepAttentionItems(goals) {
+        const items = [];
+
+        goals.forEach(function(goal) {
+            if (isGoalCompleted(goal)) return;
+
+            (goal.parts || []).forEach(function(part) {
+                if (part.completed || !part.deadline) return;
+
+                const days = getDaysUntilDeadline(part.deadline);
+                if (days === null) return;
+
+                if (days < 0) {
+                    items.push({
+                        type: "step",
+                        title: part.title,
+                        goalId: goal.id,
+                        goalTitle: goal.title,
+                        reason: {
+                            priority: 1,
+                            className: "attention-past",
+                            text: formatDeadlineReasonText(days, "шага"),
+                            daysUntilDeadline: days
+                        }
+                    });
+                } else if (days <= ATTENTION_SOON_DAYS) {
+                    items.push({
+                        type: "step",
+                        title: part.title,
+                        goalId: goal.id,
+                        goalTitle: goal.title,
+                        reason: {
+                            priority: 2,
+                            className: "attention-soon",
+                            text: formatDeadlineReasonText(days, "шага"),
+                            daysUntilDeadline: days
+                        }
+                    });
+                }
+            });
+        });
+
+        return items;
+    }
+
     function getAttentionItems(goals) {
-        return goals
+        const goalItems = goals
             .map(goal => {
+                const reason = getAttentionReason(goal);
+                if (!reason) return null;
                 return {
-                    goal: goal,
-                    reason: getAttentionReason(goal)
+                    type: "goal",
+                    title: goal.title,
+                    goalId: goal.id,
+                    goalTitle: goal.title,
+                    reason: reason
                 };
             })
-            .filter(item => item.reason !== null)
-            .sort((firstItem, secondItem) => {
-                if (firstItem.reason.priority !== secondItem.reason.priority) {
-                    return firstItem.reason.priority - secondItem.reason.priority;
-                }
+            .filter(Boolean);
 
-                return firstItem.reason.daysUntilDeadline -
-                    secondItem.reason.daysUntilDeadline;
+        const stepItems = getStepAttentionItems(goals);
+
+        return goalItems.concat(stepItems)
+            .sort((a, b) => {
+                if (a.reason.priority !== b.reason.priority) {
+                    return a.reason.priority - b.reason.priority;
+                }
+                return a.reason.daysUntilDeadline - b.reason.daysUntilDeadline;
             });
     }
 
@@ -176,13 +232,19 @@ const ATTENTION_SOON_DAYS = 7;
             itemElement.className =
                 `attention-item ${item.reason.className}`;
 
+            const metaHtml = item.type === "step"
+                ? `<span class="attention-item-meta">Шаг из цели «${item.goalTitle}»</span>`
+                : "";
+
             itemElement.innerHTML = `
                 <span class="attention-dot"></span>
 
                 <div>
                     <span class="attention-item-title">
-                        ${item.goal.title}
+                        ${item.title}
                     </span>
+
+                    ${metaHtml}
 
                     <span class="attention-item-reason">
                         ${item.reason.text}
@@ -198,7 +260,7 @@ const ATTENTION_SOON_DAYS = 7;
                 itemElement.querySelector(".attention-open-button");
 
             openButton.addEventListener("click", () => {
-                window.location.href = `goal.html?id=${item.goal.id}`;
+                window.location.href = `goal.html?id=${item.goalId}`;
             });
 
             attentionList.appendChild(itemElement);

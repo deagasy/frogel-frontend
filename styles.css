@@ -132,6 +132,14 @@
     font-size: 13px;
 }
 
+.attention-item-meta {
+    display: block;
+    font-size: var(--font-xs);
+    line-height: 16px;
+    color: #9b92b4;
+    margin-bottom: 2px;
+}
+
 .attention-past .attention-dot {
     background: #eb5757;
 }

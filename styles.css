@@ -343,6 +343,30 @@
             margin-top: 18px;
         }
 
+        /* Shared empty state pattern */
+        .empty-state {
+            padding: var(--space-5) var(--space-6);
+            border: 1px solid #eadcff;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, #fff7fb, #f7f1ff);
+            text-align: center;
+        }
+
+        .empty-state-title {
+            font-size: var(--font-base);
+            font-weight: 600;
+            line-height: 24px;
+            color: #24194f;
+            margin: 0 0 var(--space-2);
+        }
+
+        .empty-state-text {
+            font-size: var(--font-xs);
+            line-height: 16px;
+            color: #7a6f91;
+            margin: 0;
+        }
+
         .today-plan-empty {
             padding: 16px;
             border-radius: 8px;
@@ -907,6 +931,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        #goalParts > .empty-state {
+            margin-top: var(--space-4);
+            display: block;
+            padding: var(--space-5) var(--space-6);
         }
 
         .modal.hidden {
@@ -1537,6 +1567,10 @@
             margin: 0;
             color: #7a6f91;
             line-height: 1.45;
+        }
+
+        .my-goals-block .empty-state {
+            margin-bottom: var(--space-4);
         }
 
         /* Main page layout — bottom row */

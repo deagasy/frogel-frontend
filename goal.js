@@ -640,6 +640,7 @@ if (detailsToggle) {
             const title = modalPartTitle.value.trim();
             if (title === "") {
                 showFieldError("errorPartTitle", "Введите название шага");
+                modalPartTitle.focus();
                 hasError = true;
             }
 

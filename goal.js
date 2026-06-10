@@ -220,10 +220,16 @@ fetch(apiUrl(`/goals/${goalId}`))
 
         let selectedMeasuredPartIndex = null;
 
+        function clearProgressError() {
+            const el = document.getElementById("progressAmountError");
+            if (el) { el.textContent = ""; el.classList.add("hidden"); }
+        }
+
         function closeAddProgressModal() {
             addProgressModal.classList.add("hidden");
             selectedMeasuredPartIndex = null;
             progressAmountInput.value = "";
+            clearProgressError();
         }
 
         function openAddProgressModal(part, index) {
@@ -233,6 +239,7 @@ fetch(apiUrl(`/goals/${goalId}`))
                 `Сейчас: ${formatMeasuredPartText(part)}`;
 
             progressAmountInput.value = "";
+            clearProgressError();
             addProgressModal.classList.remove("hidden");
             progressAmountInput.focus();
         }
@@ -247,11 +254,21 @@ fetch(apiUrl(`/goals/${goalId}`))
             }
         });
 
-        saveProgressButton.addEventListener("click", () => {
-            const amountToAdd = Number(progressAmountInput.value);
+        progressAmountInput.addEventListener("input", clearProgressError);
 
-            if (!amountToAdd || amountToAdd <= 0) {
-                alert("Укажи, сколько добавить 🌿");
+        saveProgressButton.addEventListener("click", () => {
+            const valueStr = progressAmountInput.value.trim();
+            const amountToAdd = Number(valueStr);
+
+            if (valueStr === "") {
+                showFieldError("progressAmountError", "Введите количество");
+                progressAmountInput.focus();
+                return;
+            }
+
+            if (amountToAdd <= 0) {
+                showFieldError("progressAmountError", "Количество должно быть больше 0");
+                progressAmountInput.focus();
                 return;
             }
 
@@ -272,7 +289,8 @@ fetch(apiUrl(`/goals/${goalId}`))
             const remainingAmount = targetAmount - currentAmount;
 
             if (targetAmount > 0 && amountToAdd > remainingAmount) {
-                alert(`Осталось добавить только ${remainingAmount} ${selectedPart.unit || ""}`.trim());
+                showFieldError("progressAmountError", `Осталось добавить только ${remainingAmount} ${selectedPart.unit || ""}`.trim());
+                progressAmountInput.focus();
                 return;
             }
 

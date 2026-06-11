@@ -648,6 +648,26 @@ if (detailsToggle) {
             clearPartErrors();
         }
 
+        function hasUnsavedStepData() {
+            if (modalPartTitle.value.trim() !== "") return true;
+            if (modalPartDeadline.value !== "") return true;
+            if (selectedPartType !== "NORMAL") return true;
+            if (modalPartUnit.value.trim() !== "") return true;
+            if (modalPartTotal.value.trim() !== "") return true;
+            if (Number(modalPartDone.value) !== 0) return true;
+            return false;
+        }
+
+        const discardStepModal = document.getElementById("discardStepModal");
+
+        function tryCloseAddPartModal() {
+            if (hasUnsavedStepData()) {
+                discardStepModal.classList.remove("hidden");
+            } else {
+                closeAddPartModal();
+            }
+        }
+
         openModalButton.addEventListener("click", () => {
             resetAddPartModal();
             modal.classList.remove("hidden");
@@ -655,12 +675,27 @@ if (detailsToggle) {
         });
 
         closePartModalButton.addEventListener("click", () => {
-            closeAddPartModal();
+            tryCloseAddPartModal();
         });
 
         modal.addEventListener("click", (event) => {
             if (event.target === modal) {
-                closeAddPartModal();
+                tryCloseAddPartModal();
+            }
+        });
+
+        document.getElementById("cancelDiscardStepButton").addEventListener("click", () => {
+            discardStepModal.classList.add("hidden");
+        });
+
+        document.getElementById("confirmDiscardStepButton").addEventListener("click", () => {
+            discardStepModal.classList.add("hidden");
+            closeAddPartModal();
+        });
+
+        discardStepModal.addEventListener("click", (event) => {
+            if (event.target === discardStepModal) {
+                discardStepModal.classList.add("hidden");
             }
         });
 
@@ -829,6 +864,16 @@ if (detailsToggle) {
             if (e.key === "Escape") {
                 deleteStepModal.classList.add("hidden");
                 pendingDeleteStepAction = null;
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                if (!discardStepModal.classList.contains("hidden")) {
+                    discardStepModal.classList.add("hidden");
+                } else if (!modal.classList.contains("hidden")) {
+                    tryCloseAddPartModal();
+                }
             }
         });
 

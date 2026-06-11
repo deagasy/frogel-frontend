@@ -4,35 +4,23 @@
     <meta charset="UTF-8">
     <title>Frogel</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="styles.css">
 
 </head>
 <body>
 <h1>Frogel 🐸</h1>
 
-<div class="goal-create-form">
-    <div class="goal-title-field">
-        <input
-                id="titleInput"
-                type="text"
-                placeholder="Название цели">
-        <span id="goalTitleError" class="field-error hidden">Введите название цели</span>
-    </div>
-
-    <input
-            id="deadlineInput"
-            type="date"
-            placeholder="Дедлайн">
-
-    <button id="addGoalButton" type="button">
-        + Добавить цель
-    </button>
-</div>
-
 <div class="my-goals-block">
     <div class="my-goals-header">
-        <h2>Мои цели</h2>
-        <p>Все пути к большим вершинам собраны здесь.</p>
+        <div>
+            <h2>Мои цели</h2>
+            <p>Все пути к большим вершинам собраны здесь.</p>
+        </div>
+        <button id="openNewGoalModal" class="new-goal-button" type="button">+ Новая цель</button>
     </div>
     <div id="goals"></div>
 </div>
@@ -114,6 +102,50 @@
             <h3>Ещё в процессе</h3>
             <div id="dayResultsInProgressList"></div>
         </div>
+    </div>
+</div>
+
+<div id="newGoalModal" class="modal hidden">
+    <div class="new-goal-modal-content">
+
+        <div class="add-step-modal-header">
+            <div>
+                <h2>Новая цель</h2>
+                <p>Создай цель и сразу разбей её на первые шаги.</p>
+            </div>
+            <button id="closeNewGoalModal" class="modal-close-button" type="button">×</button>
+        </div>
+
+        <div class="new-goal-modal-body">
+            <div class="add-step-field">
+                <label for="newGoalTitle">Название цели</label>
+                <input type="text" id="newGoalTitle" placeholder="Например: выучить испанский">
+                <span class="field-error hidden" id="errorNewGoalTitle"></span>
+            </div>
+
+            <div class="add-step-field">
+                <label for="newGoalDeadline">Срок цели</label>
+                <input type="date" id="newGoalDeadline" class="add-step-date-input">
+            </div>
+
+            <div class="add-step-field">
+                <label for="newGoalDescription">Описание</label>
+                <textarea id="newGoalDescription" class="new-goal-textarea" placeholder="Что важно помнить об этой цели..." rows="2"></textarea>
+            </div>
+
+            <div class="new-goal-divider">
+                <span class="new-goal-divider-label">Шаги</span>
+            </div>
+
+            <div id="newGoalStepsContainer"></div>
+
+            <button id="addStepBlockButton" type="button" class="new-goal-add-step-btn">+ Добавить шаг</button>
+        </div>
+
+        <div class="new-goal-modal-footer">
+            <button id="submitNewGoalButton" type="button" class="add-step-submit-button">Добавить</button>
+        </div>
+
     </div>
 </div>
 

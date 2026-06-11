@@ -16,3 +16,11 @@ function formatStepProgress(completed, total) {
     const totalForm = getRussianPluralForm(total, "шага", "шагов", "шагов");
     return `${completed} из ${total} ${totalForm}`;
 }
+
+const MONTHS_SHORT_RU = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+
+function formatShortGoalDate(deadline) {
+    const date = parseDeadlineDate(deadline);
+    if (!date) return "Без срока";
+    return `${date.getDate()} ${MONTHS_SHORT_RU[date.getMonth()]} ${date.getFullYear()}`;
+}

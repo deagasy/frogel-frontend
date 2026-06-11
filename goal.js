@@ -15,6 +15,31 @@ const params = new URLSearchParams(window.location.search);
 
 const goalId = params.get("id");
 
+function copyGoalPart(part) {
+    const payload = {
+        title: part.title,
+        deadline: part.deadline || null,
+        type: part.type,
+        unit: part.type === "MEASURABLE" ? part.unit : null,
+        currentAmount: 0,
+        targetAmount: part.type === "MEASURABLE" ? (part.targetAmount || 0) : 0
+    };
+
+    fetch(apiUrl(`/goals/${goalId}/parts`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("copy_failed");
+            showFrogelToast("Шаг скопирован 🌿", "success");
+            location.reload();
+        })
+        .catch(() => {
+            showFrogelToast("Не удалось скопировать шаг. Попробуй ещё раз 🌸", "error");
+        });
+}
+
 fetch(apiUrl(`/goals/${goalId}`))
     .then(response => response.json())
     .then(goal => {
@@ -398,6 +423,17 @@ fetch(apiUrl(`/goals/${goalId}`))
         const menu = document.createElement("div");
         menu.className = "step-menu hidden";
 
+        const copyMenuItem = document.createElement("button");
+        copyMenuItem.type = "button";
+        copyMenuItem.className = "step-menu-item";
+        copyMenuItem.innerText = "Копировать";
+
+        copyMenuItem.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeAllStepMenus();
+            copyGoalPart(part);
+        });
+
         const deleteMenuItem = document.createElement("button");
         deleteMenuItem.type = "button";
         deleteMenuItem.className = "step-menu-item step-menu-item--delete";
@@ -416,6 +452,7 @@ fetch(apiUrl(`/goals/${goalId}`))
             document.getElementById("deleteStepModal").classList.remove("hidden");
         });
 
+        menu.appendChild(copyMenuItem);
         menu.appendChild(deleteMenuItem);
         menuWrapper.appendChild(menuTrigger);
         menuWrapper.appendChild(menu);

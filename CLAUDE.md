@@ -243,6 +243,19 @@ Preferred line-height should also feel systematic:
 Important:
 Do not force the entire app into the system in one huge rewrite. Apply it gradually in small slices.
 
+## Typography
+
+Frogel typography should prefer soft rounded sans-serif fonts such as Nunito, with system fallbacks. The font should feel friendly and calm, not childish and not corporate.
+
+Font stack:
+font-family: "Nunito", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+Rules:
+* Load Nunito from Google Fonts via `<link>` in HTML files. Do not add font files to the repository.
+* Use weights 400, 600, 700, 800 only.
+* Avoid making everything bold — reserve 700/800 for headings and key numbers.
+* Keep the font import in `<head>` before `styles.css`.
+
 ## Current next product direction
 
 Next planned slice:

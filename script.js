@@ -16,7 +16,6 @@ function renderGoal(goal) {
     const completedPartsCount = parts.filter(part => part.completed).length;
 
     const routePointStatus = getRoutePointStatus(goal.deadline);
-    const routePointDate = formatRoutePointDate(goal.deadline);
     const deadlineDotClass = routePointStatus.className.replace("route-point-", "deadline-dot-");
 
     const stepsText =
@@ -24,37 +23,65 @@ function renderGoal(goal) {
             ? "Пока без шагов"
             : formatStepCount(totalPartsCount);
 
-goalElement.innerHTML = `
-    <div class="goal-card-main">
-        <div>
-            <h3>${goal.title}</h3>
-            <p class="goal-meta">${stepsText}</p>
-        </div>
-    </div>
+    const stepProgressHtml = totalPartsCount === 0
+        ? "Пока без шагов"
+        : `<strong class="goal-row-count-done">${completedPartsCount}</strong> из ${totalPartsCount} ${getRussianPluralForm(totalPartsCount, "шага", "шагов", "шагов")}`;
 
-        <div class="goal-card-progress-summary">
-            <span>${formatStepProgress(completedPartsCount, totalPartsCount)}</span>
-            <strong>${goal.progressPercent}%</strong>
+    goalElement.innerHTML = `
+        <div class="goal-card-main">
+            <div>
+                <h3>${goal.title}</h3>
+                <p class="goal-meta">${stepsText}</p>
+            </div>
+        </div>
+
+        <div class="goal-row-bar-cell">
+            <div class="goal-row-mini-bar">
+                <div class="goal-row-mini-fill" style="width: ${goal.progressPercent}%"></div>
+            </div>
+        </div>
+
+        <div class="goal-row-count-block">
+            <span class="goal-row-count">${stepProgressHtml}</span>
+            <span class="goal-row-percent">${goal.progressPercent}%</span>
         </div>
 
         <div class="goal-card-route-point">
             <span class="deadline-status-dot ${deadlineDotClass}"></span>
-
-            <div>
-                <span class="goal-card-route-label">Срок цели</span>
-                <strong>${routePointDate}</strong>
-            </div>
+            <strong>${formatShortGoalDate(goal.deadline)}</strong>
         </div>
 
         <div class="goal-card-actions">
-            <button class="delete-button">Удалить</button>
+            <div class="step-menu-wrapper">
+                <button class="step-menu-trigger goal-menu-trigger" type="button" aria-label="Действия с целью">⋮</button>
+                <div class="step-menu hidden">
+                    <button class="step-menu-item goal-menu-open" type="button">Открыть</button>
+                    <button class="step-menu-item step-menu-item--delete goal-menu-delete" type="button">Удалить</button>
+                </div>
+            </div>
         </div>
     `;
 
-    const deleteButton = goalElement.querySelector(".delete-button");
+    const menuTrigger = goalElement.querySelector(".goal-menu-trigger");
+    const goalMenu = goalElement.querySelector(".step-menu");
+    const menuOpenBtn = goalElement.querySelector(".goal-menu-open");
+    const menuDeleteBtn = goalElement.querySelector(".goal-menu-delete");
 
-    deleteButton.addEventListener("click", (event) => {
+    menuTrigger.addEventListener("click", (event) => {
         event.stopPropagation();
+        const isOpen = !goalMenu.classList.contains("hidden");
+        document.querySelectorAll(".step-menu:not(.hidden)").forEach(m => m.classList.add("hidden"));
+        if (!isOpen) goalMenu.classList.remove("hidden");
+    });
+
+    menuOpenBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        window.location.href = `goal.html?id=${goal.id}`;
+    });
+
+    menuDeleteBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        goalMenu.classList.add("hidden");
 
         pendingDeleteAction = () => fetch(apiUrl(`/goals/${goal.id}`), {
                 method: "DELETE"
@@ -124,49 +151,290 @@ function loadGoals() {
         });
 }
 
-function createGoal() {
-    const titleInput = document.getElementById("titleInput");
-    const deadlineInput = document.getElementById("deadlineInput");
-    const goalTitleError = document.getElementById("goalTitleError");
+// =================== NEW GOAL MODAL ===================
 
-    const title = titleInput.value;
-    const deadline = deadlineInput.value;
+function createNgStepBlock(removable) {
+    const block = document.createElement("div");
+    block.className = "new-goal-step-block";
+    block.dataset.stepType = "NORMAL";
 
-    if (title.trim() === "") {
-        goalTitleError.classList.remove("hidden");
-        titleInput.focus();
-        return;
+    block.innerHTML = `
+        <div class="new-goal-step-header">
+            <span class="new-goal-step-number"></span>
+            ${removable ? "<button type=\"button\" class=\"new-goal-step-remove\" aria-label=\"Удалить шаг\">×</button>" : ""}
+        </div>
+        <div class="add-step-field">
+            <label>Название шага</label>
+            <input type="text" class="ng-step-title" placeholder="Например: изучить основы">
+            <span class="field-error hidden ng-step-title-error"></span>
+        </div>
+        <div class="add-step-field">
+            <label>Срок шага</label>
+            <input type="date" class="ng-step-deadline add-step-date-input">
+        </div>
+        <div class="add-step-field">
+            <label>Вид шага</label>
+            <div class="step-type-toggle">
+                <button type="button" class="step-type-btn step-type-btn--active ng-btn-normal">Обычный шаг</button>
+                <button type="button" class="step-type-btn ng-btn-measurable">Измеряемый шаг</button>
+            </div>
+            <p class="step-type-helper ng-type-helper">Подходит для шага, который можно просто отметить выполненным.</p>
+        </div>
+        <div class="measurable-fields hidden ng-measurable-fields">
+            <div class="add-step-field">
+                <div class="add-step-label-row">
+                    <label>Единицы</label>
+                    <button type="button" class="field-help-button" title="Напиши слово так, как оно звучит после числа: страниц, рублей, упражнений.">!</button>
+                </div>
+                <input type="text" class="ng-step-unit" placeholder="Например: страниц">
+                <span class="field-error hidden ng-step-unit-error"></span>
+            </div>
+            <div class="add-step-grid">
+                <div class="add-step-field">
+                    <label>Уже готово</label>
+                    <input type="number" class="ng-step-done" min="0" value="0">
+                    <span class="field-error hidden ng-step-done-error"></span>
+                </div>
+                <div class="add-step-field">
+                    <label>Всего</label>
+                    <input type="number" class="ng-step-total" min="1" placeholder="100">
+                    <span class="field-error hidden ng-step-total-error"></span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const btnNormal = block.querySelector(".ng-btn-normal");
+    const btnMeasurable = block.querySelector(".ng-btn-measurable");
+    const typeHelper = block.querySelector(".ng-type-helper");
+    const measurableFields = block.querySelector(".ng-measurable-fields");
+
+    btnNormal.addEventListener("click", () => {
+        block.dataset.stepType = "NORMAL";
+        btnNormal.classList.add("step-type-btn--active");
+        btnMeasurable.classList.remove("step-type-btn--active");
+        measurableFields.classList.add("hidden");
+        typeHelper.textContent = "Подходит для шага, который можно просто отметить выполненным.";
+    });
+
+    btnMeasurable.addEventListener("click", () => {
+        block.dataset.stepType = "MEASURABLE";
+        btnMeasurable.classList.add("step-type-btn--active");
+        btnNormal.classList.remove("step-type-btn--active");
+        measurableFields.classList.remove("hidden");
+        typeHelper.textContent = "Подходит для шагов, где прогресс считается количеством: страниц, рублей, упражнений.";
+    });
+
+    if (removable) {
+        block.querySelector(".new-goal-step-remove").addEventListener("click", () => {
+            block.remove();
+            updateNgStepNumbers();
+        });
     }
 
-    goalTitleError.classList.add("hidden");
+    block.querySelector(".ng-step-title").addEventListener("input", () => {
+        block.querySelector(".ng-step-title-error").classList.add("hidden");
+    });
+    block.querySelector(".ng-step-unit").addEventListener("input", () => {
+        block.querySelector(".ng-step-unit-error").classList.add("hidden");
+    });
+    block.querySelector(".ng-step-done").addEventListener("input", () => {
+        block.querySelector(".ng-step-done-error").classList.add("hidden");
+    });
+    block.querySelector(".ng-step-total").addEventListener("input", () => {
+        block.querySelector(".ng-step-total-error").classList.add("hidden");
+    });
+
+    return block;
+}
+
+function updateNgStepNumbers() {
+    document.querySelectorAll("#newGoalStepsContainer .new-goal-step-block").forEach((block, idx) => {
+        block.querySelector(".new-goal-step-number").textContent = "Шаг " + (idx + 1);
+    });
+}
+
+function addNgStepBlock() {
+    const container = document.getElementById("newGoalStepsContainer");
+    const isFirst = container.querySelectorAll(".new-goal-step-block").length === 0;
+    const block = createNgStepBlock(!isFirst);
+    container.appendChild(block);
+    updateNgStepNumbers();
+}
+
+function resetNewGoalModal() {
+    document.getElementById("newGoalTitle").value = "";
+    document.getElementById("newGoalDeadline").value = "";
+    document.getElementById("newGoalDescription").value = "";
+
+    const errTitle = document.getElementById("errorNewGoalTitle");
+    errTitle.textContent = "";
+    errTitle.classList.add("hidden");
+
+    document.getElementById("newGoalStepsContainer").innerHTML = "";
+    addNgStepBlock();
+}
+
+function openNewGoalModal() {
+    resetNewGoalModal();
+    document.getElementById("newGoalModal").classList.remove("hidden");
+    document.getElementById("newGoalTitle").focus();
+}
+
+function closeNewGoalModal() {
+    document.getElementById("newGoalModal").classList.add("hidden");
+}
+
+function validateAndSubmitNewGoal() {
+    let hasError = false;
+    let firstErrorEl = null;
+
+    const goalTitle = document.getElementById("newGoalTitle").value.trim();
+    if (goalTitle === "") {
+        const err = document.getElementById("errorNewGoalTitle");
+        err.textContent = "Введите название цели";
+        err.classList.remove("hidden");
+        firstErrorEl = document.getElementById("newGoalTitle");
+        hasError = true;
+    }
+
+    const stepBlocks = document.querySelectorAll("#newGoalStepsContainer .new-goal-step-block");
+    const stepsPayload = [];
+
+    stepBlocks.forEach((block) => {
+        const titleInput = block.querySelector(".ng-step-title");
+        const stepTitle = titleInput.value.trim();
+        const stepType = block.dataset.stepType;
+        const titleError = block.querySelector(".ng-step-title-error");
+
+        if (stepTitle === "") {
+            titleError.textContent = "Введите название шага";
+            titleError.classList.remove("hidden");
+            if (!firstErrorEl) firstErrorEl = titleInput;
+            hasError = true;
+        }
+
+        if (stepType === "MEASURABLE") {
+            const unitInput = block.querySelector(".ng-step-unit");
+            const doneInput = block.querySelector(".ng-step-done");
+            const totalInput = block.querySelector(".ng-step-total");
+            const unitErr = block.querySelector(".ng-step-unit-error");
+            const doneErr = block.querySelector(".ng-step-done-error");
+            const totalErr = block.querySelector(".ng-step-total-error");
+
+            const unit = unitInput.value.trim();
+            const done = Number(doneInput.value);
+            const totalStr = totalInput.value.trim();
+            const total = Number(totalStr);
+
+            if (unit === "") {
+                unitErr.textContent = "Укажите единицы измерения";
+                unitErr.classList.remove("hidden");
+                if (!firstErrorEl) firstErrorEl = unitInput;
+                hasError = true;
+            }
+            if (totalStr === "" || total <= 0) {
+                totalErr.textContent = "Укажите общий объём";
+                totalErr.classList.remove("hidden");
+                if (!firstErrorEl) firstErrorEl = totalInput;
+                hasError = true;
+            }
+            if (done < 0) {
+                doneErr.textContent = "Значение не может быть меньше 0";
+                doneErr.classList.remove("hidden");
+                if (!firstErrorEl) firstErrorEl = doneInput;
+                hasError = true;
+            } else if (totalStr !== "" && total > 0 && done > total) {
+                doneErr.textContent = "Уже готово не может быть больше общего объёма";
+                doneErr.classList.remove("hidden");
+                if (!firstErrorEl) firstErrorEl = doneInput;
+                hasError = true;
+            }
+
+            stepsPayload.push({
+                title: stepTitle,
+                deadline: block.querySelector(".ng-step-deadline").value || null,
+                type: "MEASURABLE",
+                unit: unit,
+                currentAmount: done,
+                targetAmount: total
+            });
+        } else {
+            stepsPayload.push({
+                title: stepTitle,
+                deadline: block.querySelector(".ng-step-deadline").value || null,
+                type: "NORMAL",
+                unit: null,
+                currentAmount: 0,
+                targetAmount: 0
+            });
+        }
+    });
+
+    if (firstErrorEl) firstErrorEl.focus();
+    if (hasError) return;
+
+    const submitBtn = document.getElementById("submitNewGoalButton");
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Сохраняем...";
+
+    const goalDeadline = document.getElementById("newGoalDeadline").value || null;
+    // Description is UI-only — not sent to backend yet (backend does not support it).
 
     fetch(apiUrl("/goals"), {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            title: title,
-            deadline: deadline === "" ? null : deadline
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: goalTitle, deadline: goalDeadline })
     })
-        .then(response => response.json())
-        .then(newGoal => {
-            renderGoal(newGoal);
-
-            titleInput.value = "";
-            deadlineInput.value = "";
-        });
+    .then((res) => {
+        if (!res.ok) throw new Error("goal_create_failed");
+        return res.json();
+    })
+    .then((newGoal) => {
+        const stepFetches = stepsPayload.map((step) =>
+            fetch(apiUrl("/goals/" + newGoal.id + "/parts"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(step)
+            }).then((r) => {
+                if (!r.ok) throw new Error("step_failed");
+            })
+        );
+        return Promise.allSettled(stepFetches).then((results) => ({ results }));
+    })
+    .then(({ results }) => {
+        const failed = results.filter((r) => r.status === "rejected").length;
+        closeNewGoalModal();
+        document.getElementById("goals").innerHTML = "";
+        loadGoals();
+        if (failed > 0) {
+            showFrogelToast(
+                "Цель создана, но " + failed + " " + getRussianPluralForm(failed, "шаг", "шага", "шагов") + " не добавился. Открой цель и добавь вручную. 🌸",
+                "warning"
+            );
+        }
+    })
+    .catch(() => {
+        showFrogelToast("Не удалось создать цель. Попробуй ещё раз 🌸", "error");
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Добавить";
+    });
 }
 
-const addGoalButton = document.getElementById("addGoalButton");
-
-addGoalButton.addEventListener("click", () => {
-    createGoal();
+document.getElementById("openNewGoalModal").addEventListener("click", openNewGoalModal);
+document.getElementById("closeNewGoalModal").addEventListener("click", closeNewGoalModal);
+document.getElementById("newGoalModal").addEventListener("click", (event) => {
+    if (event.target === document.getElementById("newGoalModal")) closeNewGoalModal();
 });
-
-document.getElementById("titleInput").addEventListener("input", () => {
-    document.getElementById("goalTitleError").classList.add("hidden");
+document.getElementById("addStepBlockButton").addEventListener("click", addNgStepBlock);
+document.getElementById("submitNewGoalButton").addEventListener("click", validateAndSubmitNewGoal);
+document.getElementById("newGoalTitle").addEventListener("input", () => {
+    document.getElementById("errorNewGoalTitle").classList.add("hidden");
+});
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeNewGoalModal();
 });
 
 const dayResultsButton =
@@ -233,3 +501,7 @@ if (deleteGoalModal && cancelDeleteGoalButton && confirmDeleteGoalButton) {
 }
 
 loadGoals();
+
+document.addEventListener("click", () => {
+    document.querySelectorAll(".step-menu:not(.hidden)").forEach(m => m.classList.add("hidden"));
+});

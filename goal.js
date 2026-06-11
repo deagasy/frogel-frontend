@@ -423,6 +423,29 @@ fetch(apiUrl(`/goals/${goalId}`))
         const menu = document.createElement("div");
         menu.className = "step-menu hidden";
 
+        if (!part.completed) {
+            const addToPlanMenuItem = document.createElement("button");
+            addToPlanMenuItem.type = "button";
+            addToPlanMenuItem.className = "step-menu-item";
+            addToPlanMenuItem.innerText = "Добавить в план на сегодня";
+
+            addToPlanMenuItem.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeAllStepMenus();
+                addStepToTodayPlan({
+                    id: `${goalId}-${index}`,
+                    goalId: goalId,
+                    goalTitle: goal.title,
+                    partIndex: index,
+                    title: part.title,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                });
+            });
+
+            menu.appendChild(addToPlanMenuItem);
+        }
+
         const copyMenuItem = document.createElement("button");
         copyMenuItem.type = "button";
         copyMenuItem.className = "step-menu-item";

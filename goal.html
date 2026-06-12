@@ -64,9 +64,23 @@
                 <div class="section-header">
                     <h2 id="goalPartsTitle">Шаги к цели</h2>
 
-                    <button id="openAddPartModalButton" type="button">
-                        + Добавить
-                    </button>
+                    <div class="section-header-actions">
+                        <div class="sort-dropdown-wrapper">
+                            <button id="sortStepsButton" type="button" class="sort-dropdown-trigger" aria-label="Сортировка шагов">
+                                <svg width="14" height="12" viewBox="0 0 14 12" fill="none" aria-hidden="true">
+                                    <path d="M1 1h12M3 5.5h8M5 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                            <div id="sortStepsMenu" class="sort-dropdown-menu hidden">
+                                <button type="button" class="sort-dropdown-item sort-dropdown-item--active" data-sort="added">По добавлению</button>
+                                <button type="button" class="sort-dropdown-item" data-sort="deadline">По сроку</button>
+                            </div>
+                        </div>
+
+                        <button id="openAddPartModalButton" type="button">
+                            + Добавить
+                        </button>
+                    </div>
                 </div>
                 <div id="goalParts"></div>
             </section>

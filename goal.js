@@ -193,13 +193,25 @@ fetch(apiUrl(`/goals/${goalId}`))
         const goalPartsTitle =
             document.getElementById("goalPartsTitle");
 
-        if (goal.parts.length === 0) {
-            goalPartsDiv.innerHTML = `
-                <div class="empty-state">
-                    <p class="empty-state-title">У цели пока нет шагов</p>
-                    <p class="empty-state-text">Добавь первый шаг, чтобы начать двигаться вперёд.</p>
-                </div>
-            `;
+        let stepSortMode = "added";
+
+        function getSortedStepItems(parts, mode) {
+            const items = parts.map((part, idx) => ({ part, originalIndex: idx }));
+            if (mode === "deadline") {
+                items.sort((a, b) => {
+                    const da = a.part.deadline;
+                    const db = b.part.deadline;
+                    if (da && db) {
+                        if (da < db) return -1;
+                        if (da > db) return 1;
+                        return a.originalIndex - b.originalIndex;
+                    }
+                    if (da) return -1;
+                    if (db) return 1;
+                    return a.originalIndex - b.originalIndex;
+                });
+            }
+            return items;
         }
 
         function isMeasurablePart(part) {
@@ -342,6 +354,9 @@ fetch(apiUrl(`/goals/${goalId}`))
             document.querySelectorAll(".step-menu").forEach(function(m) {
                 m.classList.add("hidden");
             });
+            document.querySelectorAll(".sort-dropdown-menu").forEach(function(m) {
+                m.classList.add("hidden");
+            });
         }
 
         document.addEventListener("click", closeAllStepMenus);
@@ -350,8 +365,18 @@ fetch(apiUrl(`/goals/${goalId}`))
             if (e.key === "Escape") { closeAllStepMenus(); }
         });
 
-        if (goal.parts.length > 0) {
-        goal.parts.forEach((part, index) => {
+        function renderStepRows() {
+            goalPartsDiv.innerHTML = "";
+            if (goal.parts.length === 0) {
+                goalPartsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <p class="empty-state-title">У цели пока нет шагов</p>
+                        <p class="empty-state-text">Добавь первый шаг, чтобы начать двигаться вперёд.</p>
+                    </div>
+                `;
+                return;
+            }
+        getSortedStepItems(goal.parts, stepSortMode).forEach(({ part, originalIndex: index }) => {
         const partElement = document.createElement("div");
         partElement.className = "goal-part-row";
 
@@ -583,6 +608,35 @@ if (detailsToggle) {
             actionsContainer.appendChild(menuWrapper);
             goalPartsDiv.appendChild(partElement);
         });
+        }
+
+        renderStepRows();
+
+        const sortStepsButton = document.getElementById("sortStepsButton");
+        const sortStepsMenu = document.getElementById("sortStepsMenu");
+
+        if (sortStepsButton) {
+            if (goal.parts.length === 0) {
+                sortStepsButton.classList.add("hidden");
+            }
+
+            sortStepsButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                sortStepsMenu.classList.toggle("hidden");
+            });
+
+            sortStepsMenu.querySelectorAll(".sort-dropdown-item").forEach(item => {
+                item.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    stepSortMode = item.dataset.sort;
+                    sortStepsMenu.querySelectorAll(".sort-dropdown-item").forEach(i => {
+                        i.classList.remove("sort-dropdown-item--active");
+                    });
+                    item.classList.add("sort-dropdown-item--active");
+                    sortStepsMenu.classList.add("hidden");
+                    renderStepRows();
+                });
+            });
         }
 
         const modal =

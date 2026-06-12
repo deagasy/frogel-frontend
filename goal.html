@@ -123,12 +123,16 @@
             </div>
 
             <div class="add-step-field">
-                <label for="modalPartTitle">Название шага</label>
+                <div class="add-step-label-row">
+                    <label for="modalPartTitle">Название шага</label>
+                    <span id="stepTitleCounter" class="step-title-counter">0/100</span>
+                </div>
 
                 <input
                         type="text"
                         id="modalPartTitle"
-                        placeholder="Например: написать введение">
+                        placeholder="Например: написать введение"
+                        maxlength="100">
                 <span class="field-error hidden" id="errorPartTitle"></span>
             </div>
 
@@ -352,6 +356,18 @@
             </div>
         </div>
     </div>
+
+    <div id="viewStepTitleModal" class="modal hidden">
+        <div class="modal-content view-step-title-modal-content">
+            <div class="add-step-modal-header">
+                <div>
+                    <h2>Название шага</h2>
+                </div>
+                <button id="closeViewStepTitleModal" class="modal-close-button" type="button">×</button>
+            </div>
+            <p id="viewStepTitleText" class="view-step-title-text"></p>
+        </div>
+    </div>
 </main>
 
 <script src="api.js"></script>
@@ -359,7 +375,7 @@
 <script src="russianTextUtils.js"></script>
 <script src="toastUtils.js"></script>
 <script src="todayPlan.js"></script>
-<script src="goal.js?v=2"></script>
+<script src="goal.js?v=5"></script>
 
 </body>
 </html>

@@ -24,3 +24,26 @@ function formatShortGoalDate(deadline) {
     if (!date) return "Без срока";
     return `${date.getDate()} ${MONTHS_SHORT_RU[date.getMonth()]} ${date.getFullYear()}`;
 }
+
+function formatStepDeadlineLabel(deadline) {
+    const date = parseDeadlineDate(deadline);
+    if (!date) return null;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.round((date - today) / (1000 * 60 * 60 * 24));
+
+    const sameYear = date.getFullYear() === today.getFullYear();
+    const label = sameYear
+        ? `${date.getDate()} ${MONTHS_SHORT_RU[date.getMonth()]}`
+        : `${date.getDate()} ${MONTHS_SHORT_RU[date.getMonth()]} ${date.getFullYear()}`;
+
+    let modifier;
+    if (diffDays < 0)       modifier = "past";
+    else if (diffDays <= 7) modifier = "soon";
+    else                    modifier = "far";
+
+    return { label, modifier };
+}

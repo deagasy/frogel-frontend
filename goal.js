@@ -124,47 +124,33 @@ fetch(apiUrl(`/goals/${goalId}`))
                 });
         });
 
-        document.getElementById("goalProgress").innerText =
-            goal.progressPercent;
-
-        document.getElementById("goalProgressFill").style.width =
-            goal.progressPercent + "%";
-
-        const completedPartsCount =
-            goal.parts.filter(part => part.completed).length;
-
-        const totalPartsCount = goal.parts.length;
-
-        document.getElementById("goalPartsSummary").innerText =
-            `${formatStepProgress(completedPartsCount, totalPartsCount)} цели завершено`;
-
-        const nextPart =
-            goal.parts.find(part => !part.completed);
-
         const planTodayButton =
             document.getElementById("planTodayButton");
 
-        if (goal.parts.length === 0) {
+        function renderGoalDerived(g) {
+            document.getElementById("goalProgress").innerText = g.progressPercent;
+            document.getElementById("goalProgressFill").style.width = g.progressPercent + "%";
 
-            document.getElementById("nextStepText").innerHTML =
-                `<strong>Пока нет шагов</strong><br><br>Добавь первый шаг к этой цели.`;
+            const completedCount = g.parts.filter(p => p.completed).length;
+            document.getElementById("goalPartsSummary").innerText =
+                `${formatStepProgress(completedCount, g.parts.length)} цели завершено`;
 
-            planTodayButton.style.display = "none";
-
-        } else if (nextPart) {
-
-            document.getElementById("nextStepText").innerText =
-                nextPart.title;
-
-            planTodayButton.style.display = "block";
-
-        } else {
-
-            document.getElementById("nextStepText").innerHTML =
-                `<strong>Все шаги завершены</strong><br><br>Можно выдохнуть или добавить новый шаг, если цель продолжается.`;
-
-            planTodayButton.style.display = "none";
+            const next = g.parts.find(p => !p.completed);
+            if (g.parts.length === 0) {
+                document.getElementById("nextStepText").innerHTML =
+                    `<strong>Пока нет шагов</strong><br><br>Добавь первый шаг к этой цели.`;
+                planTodayButton.style.display = "none";
+            } else if (next) {
+                document.getElementById("nextStepText").innerText = next.title;
+                planTodayButton.style.display = "block";
+            } else {
+                document.getElementById("nextStepText").innerHTML =
+                    `<strong>Все шаги завершены</strong><br><br>Можно выдохнуть или добавить новый шаг, если цель продолжается.`;
+                planTodayButton.style.display = "none";
+            }
         }
+
+        renderGoalDerived(goal);
 
         planTodayButton.addEventListener("click", () => {
             const nextPartIndex =
@@ -383,6 +369,11 @@ fetch(apiUrl(`/goals/${goalId}`))
         const isMeasurable = isMeasurablePart(part);
         const measuredText = isMeasurable ? formatMeasuredPartText(part) : "";
 
+        const deadlineInfo = part.deadline ? formatStepDeadlineLabel(part.deadline) : null;
+        const deadlineHtml = deadlineInfo
+            ? `<div class="goal-part-deadline-col goal-part-deadline--${deadlineInfo.modifier}">${deadlineInfo.label}</div>`
+            : `<div class="goal-part-deadline-col"></div>`;
+
         partElement.innerHTML = `
             <div class="goal-part-left">
                 <label class="goal-part-label">
@@ -391,7 +382,7 @@ fetch(apiUrl(`/goals/${goalId}`))
                         ${part.completed ? "checked" : ""}>
 
                     <span class="goal-part-text">
-                        <span class="${part.completed ? "completed-part" : ""}">
+                        <span class="goal-part-title-clickable${part.completed ? " completed-part" : ""}">
                             ${part.title}
                         </span>
 
@@ -410,31 +401,47 @@ fetch(apiUrl(`/goals/${goalId}`))
                 }
             </div>
 
-            <div class="goal-part-actions">
-                ${
-                    isMeasurable && !part.completed
-                        ? `<button
-                                type="button"
-                                class="goal-part-progress-button">
-                            + Добавить
-                        </button>`
-                        : ""
-                }
+            <div class="goal-part-right">
+                ${deadlineHtml}
 
-                ${
-                    isMeasurable && part.completed
-                        ? `<button
-                                type="button"
-                                class="goal-part-details-toggle"
-                                aria-label="Показать прогресс">
-                            ⌄
-                        </button>`
-                        : ""
-                }
+                <div class="goal-part-quick-action">
+                    ${
+                        isMeasurable && !part.completed
+                            ? `<button
+                                    type="button"
+                                    class="goal-part-progress-button">
+                                + Добавить
+                            </button>`
+                            : ""
+                    }
+
+                    ${
+                        isMeasurable && part.completed
+                            ? `<button
+                                    type="button"
+                                    class="goal-part-details-toggle"
+                                    aria-label="Показать прогресс">
+                                ⌄
+                            </button>`
+                            : ""
+                    }
+                </div>
+
+                <div class="goal-part-menu"></div>
             </div>
         `;
 
         const checkbox = partElement.querySelector("input");
+
+        const titleClickable = partElement.querySelector(".goal-part-title-clickable");
+        if (titleClickable) {
+            titleClickable.title = part.title;
+            titleClickable.addEventListener("click", (e) => {
+                e.preventDefault();
+                document.getElementById("viewStepTitleText").textContent = part.title;
+                document.getElementById("viewStepTitleModal").classList.remove("hidden");
+            });
+        }
 
         const menuWrapper = document.createElement("div");
         menuWrapper.className = "step-menu-wrapper";
@@ -515,7 +522,7 @@ fetch(apiUrl(`/goals/${goalId}`))
         });
 
 const actionsContainer =
-    partElement.querySelector(".goal-part-actions");
+    partElement.querySelector(".goal-part-menu");
 
 const progressButton =
     partElement.querySelector(".goal-part-progress-button");
@@ -542,66 +549,31 @@ if (detailsToggle) {
 }
 
             checkbox.addEventListener("change", () => {
+                const wasChecked = checkbox.checked;
                 fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        completed: checkbox.checked
+                        completed: wasChecked
                     })
                 })
                     .then(response => response.json())
                     .then(updatedGoal => {
-                        document.getElementById("goalProgress").innerText =
-                            updatedGoal.progressPercent;
+                        Object.assign(goal, updatedGoal);
+                        renderGoalDerived(goal);
+                        renderStepRows();
 
-                        document.getElementById("goalProgressFill").style.width =
-                            updatedGoal.progressPercent + "%";
-
-                        const completedPartsCount =
-                            updatedGoal.parts.filter(part => part.completed).length;
-
-                        const totalPartsCount = updatedGoal.parts.length;
-
-                        document.getElementById("goalPartsSummary").innerText =
-                            `${formatStepProgress(completedPartsCount, totalPartsCount)} цели завершено`;
-
-                        const nextPart =
-                            updatedGoal.parts.find(part => !part.completed);
-
-                        if (nextPart) {
-
-                            document.getElementById("nextStepText").innerText =
-                                nextPart.title;
-
-                            planTodayButton.style.display = "block";
-
-                        } else {
-
-                            document.getElementById("nextStepText").innerHTML =
-                                `<strong>Все шаги завершены</strong><br><br>Можно выдохнуть или добавить новый шаг, если цель продолжается.`;
-
-                            planTodayButton.style.display = "none";
-                        }
-
-                         const partTitle = partElement.querySelector(".goal-part-text > span");
-
-                         if (checkbox.checked) {
-                             partTitle.classList.add("completed-part");
-                         } else {
-                             partTitle.classList.remove("completed-part");
-                         }
-
-                         const plan = loadTodayPlan();
-                         plan.items = plan.items.map(function(planItem) {
-                             if (String(planItem.goalId) === String(goalId) &&
-                                 Number(planItem.partIndex) === Number(index)) {
-                                 return Object.assign({}, planItem, { completed: checkbox.checked });
-                             }
-                             return planItem;
-                         });
-                         saveTodayPlan(plan);
+                        const plan = loadTodayPlan();
+                        plan.items = plan.items.map(function(planItem) {
+                            if (String(planItem.goalId) === String(goalId) &&
+                                Number(planItem.partIndex) === Number(index)) {
+                                return Object.assign({}, planItem, { completed: wasChecked });
+                            }
+                            return planItem;
+                        });
+                        saveTodayPlan(plan);
                     });
             });
 
@@ -723,6 +695,11 @@ if (detailsToggle) {
             modalPartTotal.value = "";
             setPartType("NORMAL");
             clearPartErrors();
+            const counter = document.getElementById("stepTitleCounter");
+            if (counter) {
+                counter.textContent = "0/100";
+                counter.classList.remove("step-title-counter--full");
+            }
         }
 
         function hasUnsavedStepData() {
@@ -781,6 +758,12 @@ if (detailsToggle) {
 
         modalPartTitle.addEventListener("input", () => {
             document.getElementById("errorPartTitle").classList.add("hidden");
+            const counter = document.getElementById("stepTitleCounter");
+            if (counter) {
+                const len = modalPartTitle.value.length;
+                counter.textContent = `${len}/100`;
+                counter.classList.toggle("step-title-counter--full", len >= 100);
+            }
         });
         modalPartUnit.addEventListener("input", () => {
             document.getElementById("errorPartUnit").classList.add("hidden");
@@ -961,5 +944,23 @@ if (detailsToggle) {
             const action = pendingDeleteStepAction;
             pendingDeleteStepAction = null;
             action();
+        });
+
+        const viewStepTitleModal = document.getElementById("viewStepTitleModal");
+
+        document.getElementById("closeViewStepTitleModal").addEventListener("click", () => {
+            viewStepTitleModal.classList.add("hidden");
+        });
+
+        viewStepTitleModal.addEventListener("click", (e) => {
+            if (e.target === viewStepTitleModal) {
+                viewStepTitleModal.classList.add("hidden");
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                viewStepTitleModal.classList.add("hidden");
+            }
         });
     });

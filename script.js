@@ -164,8 +164,11 @@ function createNgStepBlock(removable) {
             ${removable ? "<button type=\"button\" class=\"new-goal-step-remove\" aria-label=\"Удалить шаг\">×</button>" : ""}
         </div>
         <div class="add-step-field">
-            <label>Название шага</label>
-            <input type="text" class="ng-step-title" placeholder="Например: изучить основы">
+            <div class="add-step-label-row">
+                <label>Название шага</label>
+                <span class="step-title-counter ng-step-title-counter">0/100</span>
+            </div>
+            <input type="text" class="ng-step-title" placeholder="Например: изучить основы" maxlength="100">
             <span class="field-error hidden ng-step-title-error"></span>
         </div>
         <div class="add-step-field">
@@ -234,6 +237,12 @@ function createNgStepBlock(removable) {
 
     block.querySelector(".ng-step-title").addEventListener("input", () => {
         block.querySelector(".ng-step-title-error").classList.add("hidden");
+        const len = block.querySelector(".ng-step-title").value.length;
+        const counter = block.querySelector(".ng-step-title-counter");
+        if (counter) {
+            counter.textContent = `${len}/100`;
+            counter.classList.toggle("step-title-counter--full", len >= 100);
+        }
     });
     block.querySelector(".ng-step-unit").addEventListener("input", () => {
         block.querySelector(".ng-step-unit-error").classList.add("hidden");

@@ -111,6 +111,10 @@
     border-bottom: none;
 }
 
+.attention-item > div {
+    min-width: 0;
+}
+
 .attention-dot {
     width: 10px;
     height: 10px;
@@ -118,18 +122,27 @@
 }
 
 .attention-item-title {
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     margin-bottom: 3px;
 
     color: #24194f;
     font-weight: 700;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .attention-item-reason {
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 
     color: #7a6f91;
     font-size: 13px;
+    overflow-wrap: break-word;
 }
 
 .attention-item-meta {
@@ -138,6 +151,9 @@
     line-height: 16px;
     color: #9b92b4;
     margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .attention-past .attention-dot {
@@ -242,18 +258,29 @@
             margin: 0 0 4px;
             color: #24194f;
             font-size: var(--font-lg);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .goal-card-main {
             display: flex;
             align-items: center;
             gap: var(--space-4);
+            min-width: 0;
+        }
+
+        .goal-card-main > div {
+            min-width: 0;
         }
 
         .goal-meta {
             margin: 0;
             color: #7a6f91;
             font-size: var(--font-xs);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .goal-card-progress-summary {
@@ -502,16 +529,24 @@
             display: flex;
             flex-direction: column;
             gap: 3px;
+            flex: 1 1 0;
+            min-width: 0;
         }
 
         .today-plan-item-title {
             color: #24194f;
             font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .today-plan-item-goal {
             color: #7a6f91;
             font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .today-plan-item.completed .today-plan-item-title {
@@ -661,6 +696,8 @@
             color: #3b2f63;
             font-size: var(--font-2xl);
             line-height: 1.2;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .goal-section h2 {
@@ -683,10 +720,6 @@
         }
 
         #goalParts > div {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: var(--space-4);
             padding: var(--space-4) 0;
             border-bottom: 1px solid #f1e8ff;
         }
@@ -697,13 +730,15 @@
 
         #goalParts label {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 10px;
         }
 
         #goalParts input[type="checkbox"] {
             width: 18px;
             height: 18px;
+            flex-shrink: 0;
+            margin-top: 3px;
         }
 
         #newPartInput {
@@ -799,6 +834,7 @@
             display: flex;
             flex-direction: column;
             gap: var(--space-5);
+            min-width: 0;
         }
 
         .hidden {
@@ -932,16 +968,24 @@
             display: flex;
             flex-direction: column;
             gap: 3px;
+            flex: 1 1 0;
+            min-width: 0;
         }
 
         .day-results-title {
             color: #24194f;
             font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .day-results-goal {
             color: #7a6f91;
             font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .day-results-empty {
@@ -1019,6 +1063,15 @@
         .next-step-card {
             position: sticky;
             top: 24px;
+        }
+
+        #nextStepText {
+            overflow-wrap: break-word;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .secondary-button {
@@ -1318,15 +1371,24 @@
 
         .goal-part-row {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
+            align-items: center;
+            gap: 12px;
         }
 
         .goal-part-left {
+            flex: 1 1 0;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .goal-part-right {
+            display: grid;
+            grid-template-columns: 88px 96px 32px;
+            align-items: center;
+            column-gap: 8px;
+            flex-shrink: 0;
         }
 
         .goal-part-label {
@@ -1339,12 +1401,43 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            min-width: 0;
+        }
+
+        .goal-part-text > span {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .goal-part-title-clickable {
+            cursor: pointer;
+        }
+
+        .goal-part-title-clickable:hover {
+            text-decoration: underline;
+            text-decoration-color: rgba(128, 97, 226, 0.45);
+            text-underline-offset: 2px;
         }
 
         .goal-part-measured-text {
             color: #7a6f91;
             font-size: var(--font-xs);
         }
+
+        .goal-part-deadline-col {
+            font-size: var(--font-xs);
+            line-height: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .goal-part-deadline--past { color: #c04040; }
+        .goal-part-deadline--soon { color: #9a6200; }
+        .goal-part-deadline--far  { color: #7a6f91; }
 
         .goal-part-details {
             margin-left: 28px;
@@ -1353,10 +1446,16 @@
             font-size: var(--font-xs);
         }
 
-        .goal-part-actions {
+        .goal-part-quick-action {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .goal-part-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .goal-part-progress-button,
@@ -1383,9 +1482,31 @@
             padding: 0;
         }
 
+        @media (max-width: 540px) {
+            .goal-part-right {
+                grid-template-columns: 96px 32px;
+            }
+            .goal-part-deadline-col {
+                display: none;
+            }
+        }
+
         .add-progress-modal {
             width: 420px;
             max-width: calc(100vw - 40px);
+        }
+
+        .view-step-title-modal-content {
+            max-width: calc(100vw - 40px);
+        }
+
+        .view-step-title-text {
+            margin: 0;
+            color: #24194f;
+            font-size: var(--font-base);
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         /* Step type toggle */
@@ -1433,6 +1554,20 @@
             color: #9b92b4;
             font-size: 13px;
             line-height: 1.45;
+        }
+
+        /* Step title character counter */
+        .step-title-counter {
+            margin-left: auto;
+            font-size: var(--font-xs);
+            line-height: 16px;
+            color: #9b92b4;
+            transition: color 0.15s;
+        }
+
+        .step-title-counter--full {
+            color: #8061e2;
+            font-weight: 700;
         }
 
         /* Inline field errors */

@@ -516,6 +516,69 @@
             transform: none;
         }
 
+        .today-plan-remove-popover {
+            position: fixed;
+            z-index: 600;
+            background: #ffffff;
+            border: 1.5px solid #e2d8ff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(80, 60, 160, 0.12);
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 152px;
+        }
+
+        .today-plan-remove-popover-text {
+            margin: 0;
+            color: #24194f;
+            font-size: var(--font-xs);
+            line-height: 16px;
+            font-weight: 600;
+        }
+
+        .today-plan-remove-popover-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .today-plan-remove-popover-confirm {
+            flex: 1;
+            padding: 6px 0;
+            background: #8061e2;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: var(--font-xs);
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            line-height: 16px;
+        }
+
+        .today-plan-remove-popover-confirm:hover {
+            background: #6b4fd1;
+        }
+
+        .today-plan-remove-popover-cancel {
+            flex: 1;
+            padding: 6px 0;
+            background: #f3eeff;
+            color: #7a6f91;
+            border: 1.5px solid #e2d8ff;
+            border-radius: 8px;
+            font-size: var(--font-xs);
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            line-height: 16px;
+        }
+
+        .today-plan-remove-popover-cancel:hover {
+            background: #e8dcff;
+        }
+
         .today-plan-item:last-child {
             border-bottom: none;
         }

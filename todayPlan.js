@@ -1,6 +1,9 @@
 const TODAY_PLAN_STORAGE_KEY = "frogel_today_plan_v1";
 const TODAY_PLAN_LIMIT = 3;
 
+let _activeRemovePopover = null;
+let _removePopoverListenersAdded = false;
+
 function getLocalDateKey() {
     const today = new Date();
 
@@ -226,6 +229,75 @@ function removeStepFromTodayPlan(goalId, partIndex) {
     renderDayResults();
 }
 
+function closeRemovePopover() {
+    if (_activeRemovePopover) {
+        _activeRemovePopover.remove();
+        _activeRemovePopover = null;
+    }
+}
+
+function showRemovePopover(anchorButton, onConfirm) {
+    closeRemovePopover();
+
+    const popover = document.createElement("div");
+    popover.className = "today-plan-remove-popover";
+    popover.innerHTML = `
+        <p class="today-plan-remove-popover-text">Убрать из плана?</p>
+        <div class="today-plan-remove-popover-actions">
+            <button type="button" class="today-plan-remove-popover-confirm">Да</button>
+            <button type="button" class="today-plan-remove-popover-cancel">Нет</button>
+        </div>
+    `;
+
+    popover.style.visibility = "hidden";
+    popover.style.top = "0";
+    popover.style.left = "0";
+    document.body.appendChild(popover);
+    _activeRemovePopover = popover;
+
+    const popoverRect = popover.getBoundingClientRect();
+    const anchorRect = anchorButton.getBoundingClientRect();
+    const gap = 6;
+
+    let top = anchorRect.top - popoverRect.height - gap;
+    let left = anchorRect.right - popoverRect.width;
+
+    if (top < 8) top = anchorRect.bottom + gap;
+    if (left < 8) left = 8;
+    if (left + popoverRect.width > window.innerWidth - 8) {
+        left = window.innerWidth - popoverRect.width - 8;
+    }
+
+    popover.style.top = top + "px";
+    popover.style.left = left + "px";
+    popover.style.visibility = "";
+
+    popover.querySelector(".today-plan-remove-popover-confirm").addEventListener("click", () => {
+        closeRemovePopover();
+        onConfirm();
+    });
+
+    popover.querySelector(".today-plan-remove-popover-cancel").addEventListener("click", () => {
+        closeRemovePopover();
+    });
+
+    if (!_removePopoverListenersAdded) {
+        _removePopoverListenersAdded = true;
+
+        document.addEventListener("click", (e) => {
+            if (_activeRemovePopover && !_activeRemovePopover.contains(e.target)) {
+                closeRemovePopover();
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && _activeRemovePopover) {
+                closeRemovePopover();
+            }
+        });
+    }
+}
+
 function renderDayResults() {
     const todayPlan = loadTodayPlan();
 
@@ -322,8 +394,11 @@ function renderDayResults() {
             const removeButton =
                 itemElement.querySelector(".today-plan-remove-button");
 
-            removeButton.addEventListener("click", () => {
-                removeStepFromTodayPlan(item.goalId, item.partIndex);
+            removeButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                showRemovePopover(removeButton, () => {
+                    removeStepFromTodayPlan(item.goalId, item.partIndex);
+                });
             });
 
             inProgressList.appendChild(itemElement);
@@ -406,7 +481,9 @@ function renderTodayPlan() {
             event.preventDefault();
             event.stopPropagation();
 
-            removeStepFromTodayPlan(item.goalId, item.partIndex);
+            showRemovePopover(removeButton, () => {
+                removeStepFromTodayPlan(item.goalId, item.partIndex);
+            });
         });
 
         checkbox.addEventListener("change", () => {

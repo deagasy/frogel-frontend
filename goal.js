@@ -136,16 +136,20 @@ fetch(apiUrl(`/goals/${goalId}`))
                 `${formatStepProgress(completedCount, g.parts.length)} цели завершено`;
 
             const next = g.parts.find(p => !p.completed);
+            const nextStepText = document.getElementById("nextStepText");
             if (g.parts.length === 0) {
-                document.getElementById("nextStepText").innerHTML =
+                nextStepText.classList.remove("next-step-clamped");
+                nextStepText.innerHTML =
                     `<strong>Пока нет шагов</strong><br><br>Добавь первый шаг к этой цели.`;
                 planTodayButton.style.display = "none";
             } else if (next) {
-                document.getElementById("nextStepText").innerText = next.title;
+                nextStepText.classList.add("next-step-clamped");
+                nextStepText.innerText = next.title;
                 planTodayButton.style.display = "block";
             } else {
-                document.getElementById("nextStepText").innerHTML =
-                    `<strong>Все шаги завершены</strong><br><br>Можно выдохнуть или добавить новый шаг, если цель продолжается.`;
+                nextStepText.classList.remove("next-step-clamped");
+                nextStepText.innerHTML =
+                    `<strong>Все шаги пройдены</strong><br><br>Можно добавить новый шаг, если цель продолжится.`;
                 planTodayButton.style.display = "none";
             }
         }
@@ -209,7 +213,7 @@ fetch(apiUrl(`/goals/${goalId}`))
             const targetAmount = part.targetAmount || 0;
             const unit = part.unit || "";
 
-            return `${currentAmount} из ${targetAmount} ${unit}`.trim();
+            return `${formatNumber(currentAmount)} из ${formatNumber(targetAmount)} ${unit}`.trim();
         }
 
         const addProgressModal =
@@ -299,7 +303,7 @@ fetch(apiUrl(`/goals/${goalId}`))
             const remainingAmount = targetAmount - currentAmount;
 
             if (targetAmount > 0 && amountToAdd > remainingAmount) {
-                showFieldError("progressAmountError", `Осталось добавить только ${remainingAmount} ${selectedPart.unit || ""}`.trim());
+                showFieldError("progressAmountError", `Осталось добавить только ${formatNumber(remainingAmount)} ${selectedPart.unit || ""}`.trim());
                 progressAmountInput.focus();
                 return;
             }

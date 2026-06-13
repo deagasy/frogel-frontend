@@ -317,7 +317,7 @@ function formatMeasuredProgress(item) {
     const target = item.targetAmount || 0;
     const unit = item.unit || "";
     const unitPart = unit ? " " + unit : "";
-    return current + " из " + target + unitPart;
+    return formatNumber(current) + " из " + formatNumber(target) + unitPart;
 }
 
 function showAddProgressPopover(anchorButton, item) {
@@ -401,7 +401,7 @@ function showAddProgressPopover(anchorButton, item) {
 
         if (target > 0 && amountToAdd > remaining) {
             const unitSuffix = unit ? " " + unit : "";
-            showPopoverError("Осталось добавить только " + remaining + unitSuffix);
+            showPopoverError("Осталось добавить только " + formatNumber(remaining) + unitSuffix);
             amountInput.focus();
             return;
         }
@@ -510,7 +510,7 @@ function renderDayResults() {
     if (doneItems.length === 0) {
         doneList.innerHTML = `
             <p class="day-results-empty">
-                Пока здесь пусто. Выполненные и заменённые шаги появятся тут 🌿
+                Здесь появятся завершённые шаги.
             </p>
         `;
     } else {
@@ -518,6 +518,10 @@ function renderDayResults() {
             const itemElement = document.createElement("div");
 
             itemElement.className = "day-results-item";
+
+            const progressLine = item.type === "MEASURABLE"
+                ? `<span class="day-results-progress">${formatMeasuredProgress(item)}</span>`
+                : "";
 
             itemElement.innerHTML = `
                 <span class="day-results-marker done">✓</span>
@@ -530,6 +534,8 @@ function renderDayResults() {
                     <span class="day-results-goal">
                         ${item.goalTitle}
                     </span>
+
+                    ${progressLine}
                 </span>
             `;
 
@@ -540,7 +546,7 @@ function renderDayResults() {
     if (inProgressItems.length === 0) {
         inProgressList.innerHTML = `
             <p class="day-results-empty">
-                Сейчас все шаги на сегодня уже пройдены.
+                Пока всё на сегодня закрыто.
             </p>
         `;
     } else {
@@ -548,6 +554,10 @@ function renderDayResults() {
             const itemElement = document.createElement("div");
 
             itemElement.className = "day-results-item";
+
+            const progressLine = item.type === "MEASURABLE"
+                ? `<span class="day-results-progress">${formatMeasuredProgress(item)}</span>`
+                : "";
 
             itemElement.innerHTML = `
                 <span class="day-results-marker progress">…</span>
@@ -560,6 +570,8 @@ function renderDayResults() {
                     <span class="day-results-goal">
                         ${item.goalTitle}
                     </span>
+
+                    ${progressLine}
                 </span>
 
                 <button
@@ -643,13 +655,14 @@ function renderTodayPlan() {
                     </span>
                 </span>
 
+                ${!item.completed ? `
                 <button
                         type="button"
                         class="today-plan-add-progress-btn"
-                        ${item.completed ? "disabled" : ""}
                         aria-label="Добавить прогресс">
                     + Прогресс
                 </button>
+                ` : ""}
 
                 <button
                         type="button"
@@ -665,10 +678,12 @@ function renderTodayPlan() {
             const removeButton =
                 itemElement.querySelector(".today-plan-remove-button");
 
-            addProgressButton.addEventListener("click", (event) => {
-                event.stopPropagation();
-                showAddProgressPopover(addProgressButton, item);
-            });
+            if (addProgressButton) {
+                addProgressButton.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    showAddProgressPopover(addProgressButton, item);
+                });
+            }
 
             removeButton.addEventListener("click", (event) => {
                 event.preventDefault();

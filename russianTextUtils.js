@@ -1,3 +1,13 @@
+function formatNumber(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) {
+        return value ?? "";
+    }
+    const parts = String(number).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return parts.join(".");
+}
+
 function getRussianPluralForm(count, one, few, many) {
     const n = Math.abs(count);
     const mod10 = n % 10;

@@ -4,6 +4,9 @@ const TODAY_PLAN_LIMIT = 3;
 let _activeRemovePopover = null;
 let _removePopoverListenersAdded = false;
 
+let _activeProgressPopover = null;
+let _progressPopoverListenersAdded = false;
+
 function getLocalDateKey() {
     const today = new Date();
 
@@ -146,7 +149,11 @@ function syncTodayPlanWithGoals(goals) {
             ...item,
             title: part.title,
             goalTitle: goal.title,
-            completed: part.completed
+            completed: part.completed,
+            type: part.type || "NORMAL",
+            currentAmount: part.currentAmount || 0,
+            targetAmount: part.targetAmount || 0,
+            unit: part.unit || ""
         };
     };
 
@@ -298,6 +305,178 @@ function showRemovePopover(anchorButton, onConfirm) {
     }
 }
 
+function closeProgressPopover() {
+    if (_activeProgressPopover) {
+        _activeProgressPopover.remove();
+        _activeProgressPopover = null;
+    }
+}
+
+function formatMeasuredProgress(item) {
+    const current = item.currentAmount || 0;
+    const target = item.targetAmount || 0;
+    const unit = item.unit || "";
+    const unitPart = unit ? " " + unit : "";
+    return current + " из " + target + unitPart;
+}
+
+function showAddProgressPopover(anchorButton, item) {
+    closeProgressPopover();
+    closeRemovePopover();
+
+    const current = item.currentAmount || 0;
+    const target = item.targetAmount || 0;
+    const remaining = target > current ? target - current : 0;
+    const unit = item.unit || "";
+
+    const popover = document.createElement("div");
+    popover.className = "today-plan-progress-popover";
+    popover.innerHTML = `
+        <p class="today-plan-progress-popover-label">Сколько добавить?</p>
+        <input
+                type="number"
+                class="today-plan-progress-popover-input"
+                min="1"
+                placeholder="0">
+        <p class="today-plan-progress-popover-error hidden"></p>
+        <button type="button" class="today-plan-progress-popover-submit">Добавить</button>
+    `;
+
+    popover.style.visibility = "hidden";
+    popover.style.top = "0";
+    popover.style.left = "0";
+    document.body.appendChild(popover);
+    _activeProgressPopover = popover;
+
+    const popoverRect = popover.getBoundingClientRect();
+    const anchorRect = anchorButton.getBoundingClientRect();
+    const gap = 6;
+
+    let top = anchorRect.top - popoverRect.height - gap;
+    let left = anchorRect.right - popoverRect.width;
+
+    if (top < 8) top = anchorRect.bottom + gap;
+    if (left < 8) left = 8;
+    if (left + popoverRect.width > window.innerWidth - 8) {
+        left = window.innerWidth - popoverRect.width - 8;
+    }
+
+    popover.style.top = top + "px";
+    popover.style.left = left + "px";
+    popover.style.visibility = "";
+
+    const amountInput = popover.querySelector(".today-plan-progress-popover-input");
+    const errorEl = popover.querySelector(".today-plan-progress-popover-error");
+    const submitBtn = popover.querySelector(".today-plan-progress-popover-submit");
+
+    setTimeout(() => amountInput.focus(), 0);
+
+    function showPopoverError(msg) {
+        errorEl.textContent = msg;
+        errorEl.classList.remove("hidden");
+    }
+
+    function clearPopoverError() {
+        errorEl.textContent = "";
+        errorEl.classList.add("hidden");
+    }
+
+    function handleSubmit() {
+        clearPopoverError();
+
+        const valueStr = amountInput.value.trim();
+        const amountToAdd = Number(valueStr);
+
+        if (valueStr === "") {
+            showPopoverError("Введите количество");
+            amountInput.focus();
+            return;
+        }
+
+        if (amountToAdd <= 0) {
+            showPopoverError("Количество должно быть больше 0");
+            amountInput.focus();
+            return;
+        }
+
+        if (target > 0 && amountToAdd > remaining) {
+            const unitSuffix = unit ? " " + unit : "";
+            showPopoverError("Осталось добавить только " + remaining + unitSuffix);
+            amountInput.focus();
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Сохраняем...";
+
+        fetch(apiUrl(`/goals/${item.goalId}/parts/${item.partIndex}/amount`), {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amountToAdd: amountToAdd })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("fail");
+                return response.json();
+            })
+            .then(updatedGoal => {
+                closeProgressPopover();
+
+                const todayPlan = loadTodayPlan();
+                const planItem = todayPlan.items.find(i =>
+                    String(i.goalId) === String(item.goalId) &&
+                    Number(i.partIndex) === Number(item.partIndex)
+                );
+
+                if (
+                    planItem &&
+                    updatedGoal &&
+                    updatedGoal.parts &&
+                    updatedGoal.parts[item.partIndex]
+                ) {
+                    const updatedPart = updatedGoal.parts[item.partIndex];
+                    planItem.currentAmount = updatedPart.currentAmount || 0;
+                    planItem.targetAmount = updatedPart.targetAmount || 0;
+                    planItem.unit = updatedPart.unit || "";
+                    planItem.completed = updatedPart.completed || false;
+                    saveTodayPlan(todayPlan);
+                }
+
+                renderTodayPlan();
+                renderDayResults();
+                showFrogelToast("Прогресс добавлен 🌿", "success");
+            })
+            .catch(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Добавить";
+                showFrogelToast("Не удалось добавить прогресс. Попробуй ещё раз 🌸", "error");
+            });
+    }
+
+    submitBtn.addEventListener("click", handleSubmit);
+
+    amountInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            handleSubmit();
+        }
+    });
+
+    if (!_progressPopoverListenersAdded) {
+        _progressPopoverListenersAdded = true;
+
+        document.addEventListener("click", (e) => {
+            if (_activeProgressPopover && !_activeProgressPopover.contains(e.target)) {
+                closeProgressPopover();
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && _activeProgressPopover) {
+                closeProgressPopover();
+            }
+        });
+    }
+}
+
 function renderDayResults() {
     const todayPlan = loadTodayPlan();
 
@@ -442,6 +621,68 @@ function renderTodayPlan() {
     }
 
     todayPlan.items.forEach((item) => {
+        if (item.type === "MEASURABLE") {
+            const itemElement = document.createElement("div");
+
+            itemElement.className = item.completed
+                ? "today-plan-item today-plan-item--measurable completed"
+                : "today-plan-item today-plan-item--measurable";
+
+            itemElement.innerHTML = `
+                <span class="today-plan-item-text">
+                    <span class="today-plan-item-title">
+                        ${item.title}
+                    </span>
+
+                    <span class="today-plan-item-goal">
+                        ${item.goalTitle}
+                    </span>
+
+                    <span class="today-plan-item-progress-text">
+                        ${formatMeasuredProgress(item)}
+                    </span>
+                </span>
+
+                <button
+                        type="button"
+                        class="today-plan-add-progress-btn"
+                        ${item.completed ? "disabled" : ""}
+                        aria-label="Добавить прогресс">
+                    + Прогресс
+                </button>
+
+                <button
+                        type="button"
+                        class="today-plan-remove-button"
+                        aria-label="Убрать из плана">
+                    ×
+                </button>
+            `;
+
+            const addProgressButton =
+                itemElement.querySelector(".today-plan-add-progress-btn");
+
+            const removeButton =
+                itemElement.querySelector(".today-plan-remove-button");
+
+            addProgressButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                showAddProgressPopover(addProgressButton, item);
+            });
+
+            removeButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                showRemovePopover(removeButton, () => {
+                    removeStepFromTodayPlan(item.goalId, item.partIndex);
+                });
+            });
+
+            todayPlanList.appendChild(itemElement);
+            return;
+        }
+
         const itemElement = document.createElement("label");
 
         itemElement.className =

@@ -2109,3 +2109,130 @@
             margin-top: 0;
         }
         }
+
+        /* Today Plan — measurable step item */
+        .today-plan-item--measurable {
+            align-items: flex-start;
+        }
+
+        .today-plan-item--measurable .today-plan-item-text {
+            padding-top: 2px;
+        }
+
+        .today-plan-item-progress-text {
+            color: #9b92b4;
+            font-size: var(--font-xs);
+            line-height: 16px;
+            margin-top: 2px;
+        }
+
+        .today-plan-item--measurable.completed .today-plan-item-title {
+            text-decoration: line-through;
+            opacity: 0.65;
+        }
+
+        .today-plan-item--measurable.completed .today-plan-item-progress-text {
+            opacity: 0.65;
+        }
+
+        .today-plan-add-progress-btn {
+            flex-shrink: 0;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            background: #f0eaff;
+            color: #5f3ee8;
+            font-size: var(--font-xs);
+            font-weight: 700;
+            white-space: nowrap;
+            line-height: 16px;
+        }
+
+        .today-plan-add-progress-btn:hover {
+            background: #e2d8ff;
+            transform: none;
+        }
+
+        .today-plan-add-progress-btn:disabled {
+            opacity: 0.45;
+            cursor: default;
+        }
+
+        .today-plan-add-progress-btn:disabled:hover {
+            background: #f0eaff;
+        }
+
+        /* Today Plan — add progress popover */
+        .today-plan-progress-popover {
+            position: fixed;
+            z-index: 600;
+
+            width: 196px;
+
+            background: #ffffff;
+            border: 1.5px solid #e2d8ff;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 20px rgba(80, 60, 160, 0.14);
+
+            padding: 14px 14px 12px;
+
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .today-plan-progress-popover-label {
+            margin: 0;
+            color: #24194f;
+            font-size: var(--font-xs);
+            line-height: 16px;
+            font-weight: 600;
+        }
+
+        .today-plan-progress-popover-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 7px 10px;
+            border: 1px solid #e2d8ff;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: var(--font-xs);
+            line-height: 16px;
+            color: #24194f;
+            background: #ffffff;
+        }
+
+        .today-plan-progress-popover-input:focus {
+            outline: none;
+            border-color: #8061e2;
+            box-shadow: 0 0 0 3px rgba(128, 97, 226, 0.14);
+        }
+
+        .today-plan-progress-popover-error {
+            margin: 0;
+            color: #9b5b6f;
+            font-size: var(--font-xs);
+            line-height: 16px;
+        }
+
+        .today-plan-progress-popover-submit {
+            padding: 7px 0;
+            background: #8061e2;
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-xs);
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            line-height: 16px;
+        }
+
+        .today-plan-progress-popover-submit:hover {
+            background: #6b4fd1;
+            transform: none;
+        }
+
+        .today-plan-progress-popover-submit:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }

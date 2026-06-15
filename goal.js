@@ -15,6 +15,20 @@ const params = new URLSearchParams(window.location.search);
 
 const goalId = params.get("id");
 
+function showGoalContent() {
+    document.getElementById("goalLoadingState").classList.add("hidden");
+    document.getElementById("goalContentState").classList.remove("hidden");
+    document.getElementById("goalNotFoundState").classList.add("hidden");
+    var deleteBtn = document.getElementById("deleteGoalButton");
+    if (deleteBtn) deleteBtn.classList.remove("hidden");
+}
+
+function showGoalNotFound() {
+    document.getElementById("goalLoadingState").classList.add("hidden");
+    document.getElementById("goalContentState").classList.add("hidden");
+    document.getElementById("goalNotFoundState").classList.remove("hidden");
+}
+
 function copyGoalPart(part) {
     const payload = {
         title: part.title,
@@ -40,9 +54,18 @@ function copyGoalPart(part) {
         });
 }
 
-authFetch(`/goals/${goalId}`)
-    .then(response => response.json())
+const goalIdNum = parseInt(goalId, 10);
+const goalRequest = (goalId && goalIdNum > 0)
+    ? authFetch(`/goals/${goalId}`)
+    : Promise.reject(new Error("GOAL_NOT_FOUND"));
+
+goalRequest
+    .then(response => {
+        if (!response.ok) throw new Error("GOAL_NOT_FOUND");
+        return response.json();
+    })
     .then(goal => {
+        showGoalContent();
         document.getElementById("goalTitle").innerText =
             goal.title;
 
@@ -1307,5 +1330,5 @@ if (detailsToggle) {
     })
     .catch(err => {
         if (err.message === "Unauthorized" || err.message === "Missing auth token") return;
-        console.error("[frogel] Failed to load goal:", err);
+        showGoalNotFound();
     });

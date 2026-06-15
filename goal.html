@@ -18,15 +18,30 @@
 
         <div class="app-nav">
             <a href="/profile.html" class="nav-link">Профиль</a>
-            <button id="deleteGoalButton" class="danger-button" type="button">
+            <button id="deleteGoalButton" class="danger-button hidden" type="button">
                 Удалить цель
             </button>
         </div>
     </div>
 
+    <div id="goalLoadingState" class="goal-loading-state">Загружаем цель...</div>
+
+    <div id="goalNotFoundState" class="goal-not-found-state hidden">
+        <div class="goal-not-found-card">
+            <div class="goal-not-found-icon">🗺️</div>
+            <h2 class="goal-not-found-title">Цель не найдена</h2>
+            <p class="goal-not-found-text">Возможно, она была удалена или не существует.</p>
+            <div class="goal-not-found-actions">
+                <a href="/index.html" class="goal-not-found-primary">К моим целям</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="goalContentState" class="hidden">
+
     <section class="goal-hero">
 
-        <h1 id="goalTitle">Загрузка цели...</h1>
+        <h1 id="goalTitle"></h1>
 
         <div id="routePointCard" class="route-point route-point-empty">
             <div class="route-point-content">
@@ -111,6 +126,8 @@
                 <p class="comfortable-pace-hint">Это не обязательный план, а спокойный ориентир.</p>
             </section>
         </aside>
+    </div>
+
     </div>
 
     <div id="addPartModal" class="modal hidden">

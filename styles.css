@@ -2502,3 +2502,91 @@
     line-height: 1.6;
     margin-bottom: 0;
 }
+
+/* ========== Goal not found state ========== */
+
+.goal-loading-state {
+    color: #9b92b4;
+    font-size: 16px;
+    padding: 24px 0;
+}
+
+.goal-not-found-state {
+    display: flex;
+    justify-content: center;
+    padding: 48px 0;
+}
+
+.goal-not-found-state.hidden {
+    display: none;
+}
+
+.goal-not-found-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #eadcff;
+    box-shadow: 0 8px 24px rgba(180, 160, 255, 0.12);
+    padding: 40px 32px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+}
+
+.goal-not-found-icon {
+    font-size: 40px;
+    line-height: 1;
+    margin-bottom: 16px;
+}
+
+.goal-not-found-title {
+    margin: 0 0 12px;
+    color: #24194f;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.goal-not-found-text {
+    margin: 0 0 28px;
+    color: #7a6f91;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.goal-not-found-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.goal-not-found-primary {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: #8061e2;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.goal-not-found-primary:hover {
+    background: #5f3ee8;
+}
+
+.goal-not-found-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: #f1e8ff;
+    color: #6b4eff;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.goal-not-found-secondary:hover {
+    background: #e5d8ff;
+}

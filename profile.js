@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (confirmLogoutButton) {
         confirmLogoutButton.addEventListener("click", function () {
             clearAuthToken();
-            window.location.href = "/auth.html";
+            window.location.replace("/auth.html");
         });
     }
 

@@ -584,7 +584,7 @@ if (cancelLogoutButton) {
 if (confirmLogoutButton) {
     confirmLogoutButton.addEventListener("click", () => {
         clearAuthToken();
-        window.location.href = "/auth.html";
+        window.location.replace("/auth.html");
     });
 }
 

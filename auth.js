@@ -17,13 +17,32 @@ function isAuthenticated() {
 }
 
 function redirectToAuth() {
-    window.location.href = "/auth.html";
+    window.location.replace("/auth.html");
 }
 
 function requireAuth() {
-    if (!isAuthenticated()) {
-        redirectToAuth();
+    var token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) {
+        window.location.replace("/auth.html");
+        throw new Error("Missing auth token");
     }
+    return token;
+}
+
+function protectPage() {
+    requireAuth();
+
+    window.addEventListener("pageshow", function () {
+        if (!localStorage.getItem(AUTH_TOKEN_KEY)) {
+            window.location.replace("/auth.html");
+        }
+    });
+
+    window.addEventListener("focus", function () {
+        if (!localStorage.getItem(AUTH_TOKEN_KEY)) {
+            window.location.replace("/auth.html");
+        }
+    });
 }
 
 async function authFetch(path, options) {
@@ -31,7 +50,7 @@ async function authFetch(path, options) {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
 
     if (!token) {
-        window.location.href = "/auth.html";
+        window.location.replace("/auth.html");
         throw new Error("Missing auth token");
     }
 
@@ -46,7 +65,7 @@ async function authFetch(path, options) {
 
     if (response.status === 401 || response.status === 403) {
         localStorage.removeItem(AUTH_TOKEN_KEY);
-        window.location.href = "/auth.html";
+        window.location.replace("/auth.html");
         throw new Error("Unauthorized");
     }
 

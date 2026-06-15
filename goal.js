@@ -127,6 +127,62 @@ fetch(apiUrl(`/goals/${goalId}`))
         const planTodayButton =
             document.getElementById("planTodayButton");
 
+        function renderComfortablePace(g) {
+            const paceCard = document.getElementById("comfortablePaceCard");
+            if (!paceCard) return;
+
+            if (!g.deadline) {
+                paceCard.classList.add("hidden");
+                return;
+            }
+
+            const deadlineDate = parseDeadlineDate(g.deadline);
+            if (!deadlineDate) {
+                paceCard.classList.add("hidden");
+                return;
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            deadlineDate.setHours(0, 0, 0, 0);
+            const daysLeft = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+
+            if (daysLeft <= 0) {
+                paceCard.classList.add("hidden");
+                return;
+            }
+
+            const unitTotals = {};
+            (g.parts || []).forEach(function(part) {
+                if (part.completed || part.type !== "MEASURABLE") return;
+                const remaining = (part.targetAmount || 0) - (part.currentAmount || 0);
+                if (remaining <= 0) return;
+                const unit = (part.unit || "").trim();
+                if (!unit) return;
+                unitTotals[unit] = (unitTotals[unit] || 0) + remaining;
+            });
+
+            const units = Object.keys(unitTotals);
+            if (units.length === 0) {
+                paceCard.classList.add("hidden");
+                return;
+            }
+
+            const paceLines = document.getElementById("paceLines");
+            paceLines.innerHTML = "";
+
+            units.forEach(function(unit) {
+                const totalRemaining = unitTotals[unit];
+                const dailyAmount = Math.ceil(totalRemaining / daysLeft);
+                const line = document.createElement("p");
+                line.className = "comfortable-pace-line";
+                line.textContent = "Около " + formatNumber(dailyAmount) + " " + unit + " в день";
+                paceLines.appendChild(line);
+            });
+
+            paceCard.classList.remove("hidden");
+        }
+
         function renderGoalDerived(g) {
             document.getElementById("goalProgress").innerText = g.progressPercent;
             document.getElementById("goalProgressFill").style.width = g.progressPercent + "%";
@@ -152,6 +208,8 @@ fetch(apiUrl(`/goals/${goalId}`))
                     `<strong>Все шаги пройдены</strong><br><br>Можно добавить новый шаг, если цель продолжится.`;
                 planTodayButton.style.display = "none";
             }
+
+            renderComfortablePace(g);
         }
 
         renderGoalDerived(goal);

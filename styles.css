@@ -2330,3 +2330,27 @@
                 padding: 24px;
             }
         }
+
+        /* Comfortable Pace card */
+        .comfortable-pace-subtitle {
+            margin: 4px 0 12px;
+            color: #7a6f91;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .comfortable-pace-line {
+            margin: 0 0 4px;
+            color: #5f3ee8;
+            font-size: 16px;
+            font-weight: 700;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .comfortable-pace-hint {
+            margin: 12px 0 0;
+            color: #9b92b4;
+            font-size: 12px;
+            line-height: 1.45;
+        }

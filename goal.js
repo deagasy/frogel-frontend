@@ -511,7 +511,19 @@ fetch(apiUrl(`/goals/${goalId}`))
             document.getElementById("deleteStepModal").classList.remove("hidden");
         });
 
+        const editMenuItem = document.createElement("button");
+        editMenuItem.type = "button";
+        editMenuItem.className = "step-menu-item";
+        editMenuItem.innerText = "Редактировать";
+
+        editMenuItem.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeAllStepMenus();
+            openEditPartModal(part, index);
+        });
+
         menu.appendChild(copyMenuItem);
+        menu.appendChild(editMenuItem);
         menu.appendChild(deleteMenuItem);
         menuWrapper.appendChild(menuTrigger);
         menuWrapper.appendChild(menu);
@@ -634,6 +646,9 @@ if (detailsToggle) {
             document.getElementById("modalPartDeadline");
 
         let selectedPartType = "NORMAL";
+        let stepModalMode = "create";
+        let editingPartIndex = null;
+        let initialStepModalState = null;
 
         const btnTypeNormal =
             document.getElementById("btnTypeNormal");
@@ -665,7 +680,7 @@ if (detailsToggle) {
         }
 
         function clearPartErrors() {
-            ["errorPartTitle", "errorPartUnit", "errorPartDone", "errorPartTotal"].forEach(function(id) {
+            ["errorPartTitle", "errorPartDeadline", "errorPartUnit", "errorPartDone", "errorPartTotal"].forEach(function(id) {
                 const el = document.getElementById(id);
                 if (el) { el.textContent = ""; el.classList.add("hidden"); }
             });
@@ -689,9 +704,15 @@ if (detailsToggle) {
 
         function closeAddPartModal() {
             modal.classList.add("hidden");
+            initialStepModalState = null;
         }
 
         function resetAddPartModal() {
+            stepModalMode = "create";
+            editingPartIndex = null;
+            document.getElementById("addPartModalTitle").textContent = "Новый шаг к цели";
+            document.getElementById("addPartModalSubtitle").textContent = "Добавь маленький шаг, который поможет цели двигаться вперёд.";
+            savePartButton.textContent = "Добавить";
             modalPartTitle.value = "";
             modalPartDeadline.value = "";
             modalPartUnit.value = "";
@@ -706,28 +727,79 @@ if (detailsToggle) {
             }
         }
 
-        function hasUnsavedStepData() {
-            if (modalPartTitle.value.trim() !== "") return true;
-            if (modalPartDeadline.value !== "") return true;
-            if (selectedPartType !== "NORMAL") return true;
-            if (modalPartUnit.value.trim() !== "") return true;
-            if (modalPartTotal.value.trim() !== "") return true;
-            if (Number(modalPartDone.value) !== 0) return true;
-            return false;
+        function getStepModalFormState() {
+            return {
+                title: modalPartTitle.value.trim(),
+                deadline: modalPartDeadline.value || "",
+                type: selectedPartType,
+                unit: modalPartUnit.value.trim(),
+                currentAmount: Number(modalPartDone.value) || 0,
+                targetAmount: Number(modalPartTotal.value) || 0
+            };
+        }
+
+        function captureStepModalInitialState() {
+            initialStepModalState = getStepModalFormState();
+        }
+
+        function isStepModalDirty() {
+            if (!initialStepModalState) return false;
+            const s = getStepModalFormState();
+            return (
+                s.title !== initialStepModalState.title ||
+                s.deadline !== initialStepModalState.deadline ||
+                s.type !== initialStepModalState.type ||
+                s.unit !== initialStepModalState.unit ||
+                s.currentAmount !== initialStepModalState.currentAmount ||
+                s.targetAmount !== initialStepModalState.targetAmount
+            );
         }
 
         const discardStepModal = document.getElementById("discardStepModal");
 
         function tryCloseAddPartModal() {
-            if (hasUnsavedStepData()) {
+            if (isStepModalDirty()) {
                 discardStepModal.classList.remove("hidden");
             } else {
                 closeAddPartModal();
             }
         }
 
+        function openEditPartModal(part, index) {
+            resetAddPartModal();
+            stepModalMode = "edit";
+            editingPartIndex = index;
+
+            document.getElementById("addPartModalTitle").textContent = "Редактировать шаг";
+            document.getElementById("addPartModalSubtitle").textContent = "Измени нужные поля и сохрани.";
+            savePartButton.textContent = "Сохранить";
+
+            modalPartTitle.value = part.title || "";
+            modalPartDeadline.value = part.deadline || "";
+
+            setPartType(part.type || "NORMAL");
+
+            if (part.type === "MEASURABLE") {
+                modalPartUnit.value = part.unit || "";
+                modalPartDone.value = part.currentAmount !== undefined ? part.currentAmount : 0;
+                modalPartTotal.value = part.targetAmount || "";
+            }
+
+            const counter = document.getElementById("stepTitleCounter");
+            if (counter) {
+                const len = modalPartTitle.value.length;
+                counter.textContent = `${len}/100`;
+                counter.classList.toggle("step-title-counter--full", len >= 100);
+            }
+
+            captureStepModalInitialState();
+            modal.classList.remove("hidden");
+            modalPartTitle.focus();
+        }
+
         openModalButton.addEventListener("click", () => {
             resetAddPartModal();
+            captureStepModalInitialState();
             modal.classList.remove("hidden");
             modalPartTitle.focus();
         });
@@ -840,18 +912,55 @@ if (detailsToggle) {
                 };
             }
 
-            fetch(apiUrl(`/goals/${goalId}/parts`), {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(partPayload)
-            })
-                .then(() => {
-                    resetAddPartModal();
-                    closeAddPartModal();
-                    location.reload();
-                });
+            if (stepModalMode === "edit") {
+                savePartButton.disabled = true;
+                savePartButton.innerText = "Сохраняем...";
+
+                fetch(apiUrl(`/goals/${goalId}/parts/${editingPartIndex}`), {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(partPayload)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json()
+                                .catch(() => null)
+                                .then(err => {
+                                    if (err && err.error === "deadline_after_goal_deadline") {
+                                        showFieldError("errorPartDeadline", "Срок шага не может быть позже срока цели");
+                                    } else {
+                                        showFrogelToast("Не удалось сохранить шаг. Попробуй ещё раз 🌸", "error");
+                                    }
+                                    throw new Error("update_failed");
+                                });
+                        }
+                        return response.json();
+                    })
+                    .then(updatedGoal => {
+                        Object.assign(goal, updatedGoal);
+                        renderGoalDerived(goal);
+                        renderStepRows();
+                        closeAddPartModal();
+                    })
+                    .catch(() => {})
+                    .finally(() => {
+                        savePartButton.disabled = false;
+                        savePartButton.innerText = "Сохранить";
+                    });
+            } else {
+                fetch(apiUrl(`/goals/${goalId}/parts`), {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(partPayload)
+                })
+                    .then(() => {
+                        resetAddPartModal();
+                        closeAddPartModal();
+                        location.reload();
+                    });
+            }
         });
 
         const deleteGoalButton =

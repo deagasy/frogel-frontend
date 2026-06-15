@@ -108,8 +108,8 @@
 
             <div class="add-step-modal-header">
                 <div>
-                    <h2>Новый шаг к цели</h2>
-                    <p>
+                    <h2 id="addPartModalTitle">Новый шаг к цели</h2>
+                    <p id="addPartModalSubtitle">
                         Добавь маленький шаг, который поможет цели двигаться вперёд.
                     </p>
                 </div>
@@ -143,6 +143,7 @@
                         type="date"
                         id="modalPartDeadline"
                         class="add-step-date-input">
+                <span class="field-error hidden" id="errorPartDeadline"></span>
             </div>
 
             <div class="add-step-field">

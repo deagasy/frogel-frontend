@@ -963,6 +963,176 @@ if (detailsToggle) {
             }
         });
 
+        // --- Series Generator ---
+
+        const seriesGeneratorModal = document.getElementById("seriesGeneratorModal");
+        const openSeriesGeneratorButton = document.getElementById("openSeriesGeneratorButton");
+        const seriesTaskTitleInput = document.getElementById("seriesTaskTitle");
+        const seriesTotalInput = document.getElementById("seriesTotal");
+        const seriesUnitInput = document.getElementById("seriesUnit");
+        const seriesCountInput = document.getElementById("seriesCount");
+        const createSeriesButton = document.getElementById("createSeriesButton");
+        const seriesPreviewEl = document.getElementById("seriesPreview");
+
+        function clearSeriesErrors() {
+            ["errorSeriesTaskTitle", "errorSeriesTotal", "errorSeriesUnit", "errorSeriesCount", "errorSeriesGeneral"].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = ""; el.classList.add("hidden"); }
+            });
+        }
+
+        function updateSeriesPreview() {
+            const total = Number(seriesTotalInput.value);
+            const unit = seriesUnitInput.value.trim();
+            const count = Number(seriesCountInput.value);
+
+            if (!total || !count || total < 1 || count < 1 || count > total) {
+                seriesPreviewEl.classList.add("hidden");
+                return;
+            }
+
+            const base = Math.floor(total / count);
+            const remainder = total % count;
+            const stepWord = getRussianPluralForm(count, "шаг", "шага", "шагов");
+            const unitPart = unit ? " " + unit : "";
+
+            let previewText;
+            if (remainder === 0) {
+                previewText = "Будет создано " + count + " " + stepWord + " по " + base + unitPart + ".";
+            } else {
+                previewText = "Будет создано " + count + " " + stepWord + ": часть по " + (base + 1) + ", часть по " + base + unitPart + ".";
+            }
+
+            seriesPreviewEl.textContent = previewText;
+            seriesPreviewEl.classList.remove("hidden");
+        }
+
+        function openSeriesGenerator() {
+            seriesTaskTitleInput.value = modalPartTitle.value.trim();
+            seriesTotalInput.value = "";
+            seriesCountInput.value = "";
+            seriesUnitInput.value = modalPartUnit.value.trim();
+            clearSeriesErrors();
+            seriesPreviewEl.classList.add("hidden");
+            modal.classList.add("hidden");
+            seriesGeneratorModal.classList.remove("hidden");
+            seriesTotalInput.focus();
+        }
+
+        function closeSeriesGenerator() {
+            seriesGeneratorModal.classList.add("hidden");
+            modal.classList.remove("hidden");
+        }
+
+        openSeriesGeneratorButton.addEventListener("click", openSeriesGenerator);
+
+        document.getElementById("closeSeriesGeneratorButton").addEventListener("click", closeSeriesGenerator);
+
+        seriesGeneratorModal.addEventListener("click", function(e) {
+            if (e.target === seriesGeneratorModal) {
+                closeSeriesGenerator();
+            }
+        });
+
+        [seriesTaskTitleInput, seriesTotalInput, seriesUnitInput, seriesCountInput].forEach(function(input) {
+            input.addEventListener("input", function() {
+                clearSeriesErrors();
+                updateSeriesPreview();
+            });
+        });
+
+        function generateSeriesStepTitle(taskTitle, from, to) {
+            return taskTitle + " · " + formatNumber(from) + "–" + formatNumber(to);
+        }
+
+        createSeriesButton.addEventListener("click", async function() {
+            clearSeriesErrors();
+            let hasError = false;
+
+            const taskTitle = seriesTaskTitleInput.value.trim();
+            const totalStr = seriesTotalInput.value.trim();
+            const unit = seriesUnitInput.value.trim();
+            const countStr = seriesCountInput.value.trim();
+
+            const total = Number(totalStr);
+            const count = Number(countStr);
+
+            if (taskTitle === "") {
+                showFieldError("errorSeriesTaskTitle", "Введите название шага");
+                hasError = true;
+            }
+
+            if (totalStr === "" || isNaN(total) || total < 1) {
+                showFieldError("errorSeriesTotal", "Введите объём не менее 1");
+                hasError = true;
+            }
+
+            if (unit === "") {
+                showFieldError("errorSeriesUnit", "Введите единицу измерения");
+                hasError = true;
+            }
+
+            if (countStr === "" || isNaN(count) || count < 1) {
+                showFieldError("errorSeriesCount", "Введите количество шагов не менее 1");
+                hasError = true;
+            } else if (count > 100) {
+                showFieldError("errorSeriesCount", "Пока можно создать до 100 шагов за раз.");
+                hasError = true;
+            } else if (!hasError && count > total) {
+                showFieldError("errorSeriesCount", "Количество шагов не должно быть больше общего объёма.");
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            const base = Math.floor(total / count);
+            const remainder = total % count;
+
+            createSeriesButton.disabled = true;
+            createSeriesButton.textContent = "Создаём...";
+
+            try {
+                let cursor = 1;
+                for (let i = 0; i < count; i++) {
+                    const amount = i < remainder ? base + 1 : base;
+                    const from = cursor;
+                    const to = cursor + amount - 1;
+                    cursor = to + 1;
+
+                    const title = generateSeriesStepTitle(taskTitle, from, to);
+
+                    const payload = {
+                        title: title,
+                        deadline: null,
+                        type: "MEASURABLE",
+                        unit: unit,
+                        currentAmount: 0,
+                        targetAmount: amount
+                    };
+
+                    const response = await fetch(apiUrl(`/goals/${goalId}/parts`), {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("step_failed");
+                    }
+                }
+
+                seriesGeneratorModal.classList.add("hidden");
+                showFrogelToast("Шаги созданы", "success");
+                location.reload();
+            } catch (err) {
+                showFieldError("errorSeriesGeneral", "Не удалось создать все шаги. Попробуй ещё раз.");
+                createSeriesButton.disabled = false;
+                createSeriesButton.textContent = "Создать шаги";
+            }
+        });
+
+        // --- End Series Generator ---
+
         const deleteGoalButton =
             document.getElementById("deleteGoalButton");
 

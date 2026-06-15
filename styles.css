@@ -2264,3 +2264,69 @@
             opacity: 0.6;
             cursor: default;
         }
+
+        /* Series Generator — trigger link */
+        .series-generator-trigger {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #ece7fa;
+        }
+
+        .series-generator-link {
+            background: transparent;
+            color: #8061e2;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .series-generator-link:hover {
+            color: #5f3ee8;
+            background: transparent;
+            transform: none;
+            text-decoration: underline;
+        }
+
+        /* Series Generator — modal */
+        .series-generator-modal-content {
+            position: relative;
+            width: 480px;
+            max-width: calc(100vw - 40px);
+            padding: 32px;
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 24px 70px rgba(40, 30, 80, 0.18);
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+
+        #seriesGeneratorModal .add-step-modal-header h2 {
+            margin-right: 0;
+        }
+
+        /* Series Generator — live preview */
+        .series-preview {
+            margin: 0 0 16px;
+            padding: 12px 16px;
+            background: #f5f0ff;
+            border-radius: 10px;
+            color: #5f4a8a;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Series Generator — general error */
+        .series-general-error {
+            color: #c0392b;
+            font-size: var(--font-xs);
+            line-height: 16px;
+            margin: 0 0 8px;
+        }
+
+        @media (max-width: 560px) {
+            .series-generator-modal-content {
+                padding: 24px;
+            }
+        }

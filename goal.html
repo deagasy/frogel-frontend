@@ -198,6 +198,12 @@
                         <span class="field-error hidden" id="errorPartTotal"></span>
                     </div>
                 </div>
+
+                <div class="series-generator-trigger">
+                    <button type="button" id="openSeriesGeneratorButton" class="series-generator-link">
+                        Разбить объём на части →
+                    </button>
+                </div>
             </div>
 
             <button
@@ -367,6 +373,50 @@
                 <button id="closeViewStepTitleModal" class="modal-close-button" type="button">×</button>
             </div>
             <p id="viewStepTitleText" class="view-step-title-text"></p>
+        </div>
+    </div>
+
+    <div id="seriesGeneratorModal" class="modal hidden">
+        <div class="modal-content series-generator-modal-content">
+            <div class="add-step-modal-header">
+                <div>
+                    <h2>Разбить объём на шаги</h2>
+                    <p>Frogel поможет превратить большой объём в несколько маленьких шагов.</p>
+                </div>
+                <button id="closeSeriesGeneratorButton" class="modal-close-button" type="button">×</button>
+            </div>
+
+            <div class="add-step-field">
+                <label for="seriesTaskTitle">Название шага</label>
+                <input type="text" id="seriesTaskTitle" placeholder="Например: Конспект">
+                <span class="field-error hidden" id="errorSeriesTaskTitle"></span>
+            </div>
+
+            <div class="add-step-field">
+                <label for="seriesTotal">Общий объём</label>
+                <input type="number" id="seriesTotal" min="1" placeholder="Например, 300">
+                <span class="field-error hidden" id="errorSeriesTotal"></span>
+            </div>
+
+            <div class="add-step-field">
+                <label for="seriesUnit">Единица измерения</label>
+                <input type="text" id="seriesUnit" placeholder="страниц, слов, упражнений...">
+                <span class="field-error hidden" id="errorSeriesUnit"></span>
+            </div>
+
+            <div class="add-step-field">
+                <label for="seriesCount">Количество шагов</label>
+                <input type="number" id="seriesCount" min="1" max="100" placeholder="Например, 15">
+                <span class="field-error hidden" id="errorSeriesCount"></span>
+            </div>
+
+            <p id="seriesPreview" class="series-preview hidden"></p>
+
+            <p class="series-general-error hidden" id="errorSeriesGeneral"></p>
+
+            <button id="createSeriesButton" class="add-step-submit-button" type="button">
+                Создать шаги
+            </button>
         </div>
     </div>
 </main>

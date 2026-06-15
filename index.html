@@ -12,7 +12,10 @@
 
 </head>
 <body>
-<h1>Frogel 🐸</h1>
+<div class="app-header">
+    <h1>Frogel 🐸</h1>
+    <button id="logoutButton" class="logout-button" type="button">Выйти</button>
+</div>
 
 <div class="my-goals-block">
     <div class="my-goals-header">
@@ -175,7 +178,20 @@
     </div>
 </div>
 
+<div id="discardNewGoalModal" class="modal hidden">
+    <div class="modal-content delete-goal-modal-content">
+        <h2>Закрыть без сохранения?</h2>
+        <p class="modal-hint">Введённые данные не сохранятся.</p>
+        <div class="modal-actions">
+            <button id="cancelDiscardNewGoalButton" class="secondary-button" type="button">Остаться</button>
+            <button id="confirmDiscardNewGoalButton" class="danger-button" type="button">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 <script src="api.js"></script>
+<script src="auth.js"></script>
+<script>requireAuth();</script>
 <script src="deadlineUtils.js"></script>
 <script src="russianTextUtils.js"></script>
 <script src="toastUtils.js"></script>

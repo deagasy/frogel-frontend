@@ -83,7 +83,7 @@ function renderGoal(goal) {
         event.stopPropagation();
         goalMenu.classList.add("hidden");
 
-        pendingDeleteAction = () => fetch(apiUrl(`/goals/${goal.id}`), {
+        pendingDeleteAction = () => authFetch(`/goals/${goal.id}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -127,28 +127,39 @@ function renderGoal(goal) {
     goalsDiv.appendChild(goalElement);
 }
 
-function loadGoals() {
-    fetch(apiUrl("/goals"))
-        .then(response => response.json())
-        .then(goals => {
-            syncTodayPlanWithGoals(goals);
-            renderTodayPlan();
-            renderAttentionBlock(goals);
+async function loadGoals() {
+    try {
+        const response = await authFetch("/goals");
+        const data = await response.json();
 
-            goals.forEach(goal => {
-                renderGoal(goal);
-            });
+        if (!Array.isArray(data)) {
+            console.error("[frogel] Expected /goals to return array, got:", data);
+            showFrogelToast("Не удалось загрузить цели. Попробуй обновить страницу 🌸", "error");
+            return;
+        }
 
-            if (goals.length === 0) {
-                const goalsDiv = document.getElementById("goals");
-                goalsDiv.innerHTML = `
-                    <div class="empty-state">
-                        <p class="empty-state-title">Пока здесь тихо</p>
-                        <p class="empty-state-text">Добавь первую цель — она появится в этом блоке.</p>
-                    </div>
-                `;
-            }
+        syncTodayPlanWithGoals(data);
+        renderTodayPlan();
+        renderAttentionBlock(data);
+
+        data.forEach(goal => {
+            renderGoal(goal);
         });
+
+        if (data.length === 0) {
+            const goalsDiv = document.getElementById("goals");
+            goalsDiv.innerHTML = `
+                <div class="empty-state">
+                    <p class="empty-state-title">Пока здесь тихо</p>
+                    <p class="empty-state-text">Добавь первую цель — она появится в этом блоке.</p>
+                </div>
+            `;
+        }
+    } catch (err) {
+        if (err.message === "Unauthorized" || err.message === "Missing auth token") return;
+        console.error("[frogel] loadGoals error:", err);
+        showFrogelToast("Не удалось загрузить цели. Попробуй обновить страницу 🌸", "error");
+    }
 }
 
 // =================== NEW GOAL MODAL ===================
@@ -390,7 +401,7 @@ function validateAndSubmitNewGoal() {
     const goalDeadline = document.getElementById("newGoalDeadline").value || null;
     // Description is UI-only — not sent to backend yet (backend does not support it).
 
-    fetch(apiUrl("/goals"), {
+    authFetch("/goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: goalTitle, deadline: goalDeadline })
@@ -401,7 +412,7 @@ function validateAndSubmitNewGoal() {
     })
     .then((newGoal) => {
         const stepFetches = stepsPayload.map((step) =>
-            fetch(apiUrl("/goals/" + newGoal.id + "/parts"), {
+            authFetch("/goals/" + newGoal.id + "/parts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(step)
@@ -423,7 +434,8 @@ function validateAndSubmitNewGoal() {
             );
         }
     })
-    .catch(() => {
+    .catch((err) => {
+        if (err && err.message === "Unauthorized") return;
         showFrogelToast("Не удалось создать цель. Попробуй ещё раз 🌸", "error");
     })
     .finally(() => {
@@ -432,10 +444,29 @@ function validateAndSubmitNewGoal() {
     });
 }
 
+function isNewGoalModalDirty() {
+    if (document.getElementById("newGoalTitle").value.trim()) return true;
+    if (document.getElementById("newGoalDeadline").value) return true;
+    if (document.getElementById("newGoalDescription").value.trim()) return true;
+    const stepInputs = document.querySelectorAll("#newGoalStepsContainer .ng-step-title");
+    for (let i = 0; i < stepInputs.length; i++) {
+        if (stepInputs[i].value.trim()) return true;
+    }
+    return false;
+}
+
+function tryCloseNewGoalModal() {
+    if (isNewGoalModalDirty()) {
+        document.getElementById("discardNewGoalModal").classList.remove("hidden");
+    } else {
+        closeNewGoalModal();
+    }
+}
+
 document.getElementById("openNewGoalModal").addEventListener("click", openNewGoalModal);
 document.getElementById("closeNewGoalModal").addEventListener("click", closeNewGoalModal);
 document.getElementById("newGoalModal").addEventListener("click", (event) => {
-    if (event.target === document.getElementById("newGoalModal")) closeNewGoalModal();
+    if (event.target === document.getElementById("newGoalModal")) tryCloseNewGoalModal();
 });
 document.getElementById("addStepBlockButton").addEventListener("click", addNgStepBlock);
 document.getElementById("submitNewGoalButton").addEventListener("click", validateAndSubmitNewGoal);
@@ -443,7 +474,29 @@ document.getElementById("newGoalTitle").addEventListener("input", () => {
     document.getElementById("errorNewGoalTitle").classList.add("hidden");
 });
 document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeNewGoalModal();
+    if (event.key === "Escape") {
+        const discardNgModal = document.getElementById("discardNewGoalModal");
+        if (discardNgModal && !discardNgModal.classList.contains("hidden")) {
+            discardNgModal.classList.add("hidden");
+            return;
+        }
+        const ngModal = document.getElementById("newGoalModal");
+        if (ngModal && !ngModal.classList.contains("hidden")) {
+            tryCloseNewGoalModal();
+        }
+    }
+});
+
+const discardNewGoalModal = document.getElementById("discardNewGoalModal");
+document.getElementById("cancelDiscardNewGoalButton").addEventListener("click", () => {
+    discardNewGoalModal.classList.add("hidden");
+});
+document.getElementById("confirmDiscardNewGoalButton").addEventListener("click", () => {
+    discardNewGoalModal.classList.add("hidden");
+    closeNewGoalModal();
+});
+discardNewGoalModal.addEventListener("click", (event) => {
+    if (event.target === discardNewGoalModal) discardNewGoalModal.classList.add("hidden");
 });
 
 const dayResultsButton =
@@ -510,6 +563,14 @@ if (deleteGoalModal && cancelDeleteGoalButton && confirmDeleteGoalButton) {
 }
 
 loadGoals();
+
+const logoutButton = document.getElementById("logoutButton");
+if (logoutButton) {
+    logoutButton.addEventListener("click", () => {
+        clearAuthToken();
+        window.location.href = "/auth.html";
+    });
+}
 
 document.addEventListener("click", () => {
     document.querySelectorAll(".step-menu:not(.hidden)").forEach(m => m.classList.add("hidden"));

@@ -25,7 +25,7 @@ function copyGoalPart(part) {
         targetAmount: part.type === "MEASURABLE" ? (part.targetAmount || 0) : 0
     };
 
-    fetch(apiUrl(`/goals/${goalId}/parts`), {
+    authFetch(`/goals/${goalId}/parts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -40,7 +40,7 @@ function copyGoalPart(part) {
         });
 }
 
-fetch(apiUrl(`/goals/${goalId}`))
+authFetch(`/goals/${goalId}`)
     .then(response => response.json())
     .then(goal => {
         document.getElementById("goalTitle").innerText =
@@ -88,7 +88,7 @@ fetch(apiUrl(`/goals/${goalId}`))
             saveDeadlineButton.disabled = true;
             saveDeadlineButton.innerText = "Сохраняем...";
 
-            fetch(apiUrl(`/goals/${goalId}/deadline`), {
+            authFetch(`/goals/${goalId}/deadline`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -369,7 +369,7 @@ fetch(apiUrl(`/goals/${goalId}`))
             saveProgressButton.disabled = true;
             saveProgressButton.innerText = "Сохраняем...";
 
-            fetch(apiUrl(`/goals/${goalId}/parts/${selectedMeasuredPartIndex}/amount`), {
+            authFetch(`/goals/${goalId}/parts/${selectedMeasuredPartIndex}/amount`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -559,7 +559,7 @@ fetch(apiUrl(`/goals/${goalId}`))
         deleteMenuItem.addEventListener("click", () => {
             closeAllStepMenus();
             pendingDeleteStepAction = () => {
-                fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
+                authFetch(`/goals/${goalId}/parts/${index}`, {
                     method: "DELETE"
                 })
                     .then(() => {
@@ -624,7 +624,7 @@ if (detailsToggle) {
 
             checkbox.addEventListener("change", () => {
                 const wasChecked = checkbox.checked;
-                fetch(apiUrl(`/goals/${goalId}/parts/${index}`), {
+                authFetch(`/goals/${goalId}/parts/${index}`, {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json"
@@ -974,7 +974,7 @@ if (detailsToggle) {
                 savePartButton.disabled = true;
                 savePartButton.innerText = "Сохраняем...";
 
-                fetch(apiUrl(`/goals/${goalId}/parts/${editingPartIndex}`), {
+                authFetch(`/goals/${goalId}/parts/${editingPartIndex}`, {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(partPayload)
@@ -1006,7 +1006,7 @@ if (detailsToggle) {
                         savePartButton.innerText = "Сохранить";
                     });
             } else {
-                fetch(apiUrl(`/goals/${goalId}/parts`), {
+                authFetch(`/goals/${goalId}/parts`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -1168,7 +1168,7 @@ if (detailsToggle) {
                         targetAmount: amount
                     };
 
-                    const response = await fetch(apiUrl(`/goals/${goalId}/parts`), {
+                    const response = await authFetch(`/goals/${goalId}/parts`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
@@ -1227,7 +1227,7 @@ if (detailsToggle) {
             confirmDeleteGoalButton.disabled = true;
             confirmDeleteGoalButton.innerText = "Удаляем...";
 
-            fetch(apiUrl(`/goals/${goalId}`), {
+            authFetch(`/goals/${goalId}`, {
                 method: "DELETE"
             })
                 .then(() => {
@@ -1304,4 +1304,8 @@ if (detailsToggle) {
                 viewStepTitleModal.classList.add("hidden");
             }
         });
+    })
+    .catch(err => {
+        if (err.message === "Unauthorized" || err.message === "Missing auth token") return;
+        console.error("[frogel] Failed to load goal:", err);
     });

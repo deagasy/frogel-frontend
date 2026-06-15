@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Frogel — вход</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            box-sizing: border-box;
+            max-width: none;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 1px solid #eadcff;
+            box-shadow: 0 12px 40px rgba(180, 160, 255, 0.18);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 32px;
+            line-height: 40px;
+            color: #4408b4;
+            font-weight: 800;
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #24194f;
+            margin: 0 0 4px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #7a6f91;
+            margin: 0 0 32px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            background: #f5f0ff;
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #7a6f91;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            font-family: inherit;
+        }
+
+        .auth-tab:hover {
+            background: #ede8ff;
+            transform: none;
+        }
+
+        .auth-tab--active {
+            background: #ffffff;
+            color: #4408b4;
+            box-shadow: 0 2px 8px rgba(180, 160, 255, 0.2);
+        }
+
+        .auth-tab--active:hover {
+            background: #ffffff;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .auth-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .auth-field label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #24194f;
+        }
+
+        .auth-field input {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #ddd5f5;
+            font-size: 16px;
+            font-family: inherit;
+            color: #24194f;
+            background: #faf8ff;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .auth-field input:focus {
+            border-color: #8061e2;
+            box-shadow: 0 0 0 3px rgba(111, 76, 255, 0.12);
+            background: #ffffff;
+        }
+
+        .auth-field input::placeholder {
+            color: #b0a8cc;
+        }
+
+        .auth-error {
+            font-size: 13px;
+            color: #c0392b;
+            margin: 0;
+            display: none;
+        }
+
+        .auth-error--visible {
+            display: block;
+        }
+
+        .auth-submit {
+            margin-top: 8px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #7c4dff 0%, #5f3ee8 100%);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .auth-submit:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .auth-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-global-error {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: #fff0f0;
+            border: 1px solid #ffd5d5;
+            color: #c0392b;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .auth-global-error--visible {
+            display: block;
+        }
+
+        .auth-success {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: #f0fff4;
+            border: 1px solid #b7f0c8;
+            color: #1a7a3a;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .auth-success--visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-logo">🐸</div>
+        <h1 class="auth-title">Добро пожаловать в Frogel</h1>
+        <p class="auth-subtitle">Маленькими шагами — к большим вершинам.</p>
+
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab auth-tab--active" id="tabLogin">Вход</button>
+            <button type="button" class="auth-tab" id="tabRegister">Регистрация</button>
+        </div>
+
+        <form class="auth-form" id="authForm" novalidate>
+
+            <div class="auth-field" id="fieldName" style="display: none;">
+                <label for="inputName">Имя</label>
+                <input type="text" id="inputName" placeholder="Как тебя зовут?" autocomplete="name">
+                <p class="auth-error" id="errorName"></p>
+            </div>
+
+            <div class="auth-field">
+                <label for="inputEmail">Email</label>
+                <input type="email" id="inputEmail" placeholder="your@email.com" autocomplete="email">
+                <p class="auth-error" id="errorEmail"></p>
+            </div>
+
+            <div class="auth-field">
+                <label for="inputPassword">Пароль</label>
+                <input type="password" id="inputPassword" placeholder="Не менее 6 символов" autocomplete="current-password">
+                <p class="auth-error" id="errorPassword"></p>
+            </div>
+
+            <button type="submit" class="auth-submit" id="authSubmit">Войти</button>
+        </form>
+
+        <div class="auth-global-error" id="globalError"></div>
+        <div class="auth-success" id="globalSuccess"></div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        if (isAuthenticated()) {
+            window.location.href = "/index.html";
+        }
+
+        var mode = "login";
+
+        var tabLogin = document.getElementById("tabLogin");
+        var tabRegister = document.getElementById("tabRegister");
+        var fieldName = document.getElementById("fieldName");
+        var authSubmit = document.getElementById("authSubmit");
+        var globalError = document.getElementById("globalError");
+        var globalSuccess = document.getElementById("globalSuccess");
+        var inputName = document.getElementById("inputName");
+        var inputEmail = document.getElementById("inputEmail");
+        var inputPassword = document.getElementById("inputPassword");
+
+        function clearErrors() {
+            document.getElementById("errorName").textContent = "";
+            document.getElementById("errorName").classList.remove("auth-error--visible");
+            document.getElementById("errorEmail").textContent = "";
+            document.getElementById("errorEmail").classList.remove("auth-error--visible");
+            document.getElementById("errorPassword").textContent = "";
+            document.getElementById("errorPassword").classList.remove("auth-error--visible");
+            globalError.textContent = "";
+            globalError.classList.remove("auth-global-error--visible");
+            globalSuccess.textContent = "";
+            globalSuccess.classList.remove("auth-success--visible");
+        }
+
+        function showFieldError(id, msg) {
+            var el = document.getElementById(id);
+            el.textContent = msg;
+            el.classList.add("auth-error--visible");
+        }
+
+        function showGlobalError(msg) {
+            globalError.textContent = msg;
+            globalError.classList.add("auth-global-error--visible");
+        }
+
+        function showGlobalSuccess(msg) {
+            globalSuccess.textContent = msg;
+            globalSuccess.classList.add("auth-success--visible");
+        }
+
+        function extractToken(data) {
+            if (typeof data === "string" && data.length > 10) return data;
+            if (!data) return null;
+            return data.token || data.accessToken || data.access_token || data.jwt || null;
+        }
+
+        function switchToLogin() {
+            mode = "login";
+            tabLogin.classList.add("auth-tab--active");
+            tabRegister.classList.remove("auth-tab--active");
+            fieldName.style.display = "none";
+            inputName.value = "";
+            authSubmit.textContent = "Войти";
+            clearErrors();
+        }
+
+        function switchToRegister() {
+            mode = "register";
+            tabRegister.classList.add("auth-tab--active");
+            tabLogin.classList.remove("auth-tab--active");
+            fieldName.style.display = "";
+            authSubmit.textContent = "Создать аккаунт";
+            clearErrors();
+        }
+
+        tabLogin.addEventListener("click", switchToLogin);
+        tabRegister.addEventListener("click", switchToRegister);
+
+        function doLogin(email, password, onSuccess, onError) {
+            fetch(apiUrl("/auth/login"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(function(res) {
+                if (!res.ok) {
+                    return res.json().catch(function() { return null; }).then(function(body) {
+                        var msg = (body && body.message) ? body.message : null;
+                        onError(res.status, msg);
+                    });
+                }
+                return res.json().then(function(data) {
+                    console.log("[frogel-auth] login response keys:", Object.keys(data || {}));
+                    var token = extractToken(data);
+                    if (token) {
+                        setAuthToken(token);
+                        onSuccess();
+                    } else {
+                        console.warn("[frogel-auth] token not found. Response keys:", Object.keys(data || {}));
+                        onError(0, "Токен не получен. Попробуй ещё раз.");
+                    }
+                });
+            })
+            .catch(function() {
+                onError(0, "Не удалось подключиться к серверу.");
+            });
+        }
+
+        document.getElementById("authForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            var email = inputEmail.value.trim();
+            var password = inputPassword.value;
+            var name = inputName.value.trim();
+            var hasError = false;
+
+            if (mode === "register" && name === "") {
+                showFieldError("errorName", "Введи своё имя");
+                hasError = true;
+            }
+
+            if (email === "") {
+                showFieldError("errorEmail", "Введи email");
+                hasError = true;
+            }
+
+            if (password === "") {
+                showFieldError("errorPassword", "Введи пароль");
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            authSubmit.disabled = true;
+
+            if (mode === "login") {
+                authSubmit.textContent = "Входим...";
+
+                doLogin(email, password, function() {
+                    window.location.href = "/index.html";
+                }, function(status, msg) {
+                    authSubmit.disabled = false;
+                    authSubmit.textContent = "Войти";
+                    if (status === 401 || status === 400) {
+                        showGlobalError("Проверь email и пароль");
+                    } else {
+                        showGlobalError(msg || "Не удалось войти. Попробуй ещё раз.");
+                    }
+                });
+
+            } else {
+                authSubmit.textContent = "Создаём...";
+
+                fetch(apiUrl("/auth/register"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: name, displayName: name, email: email, password: password })
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        return res.json().catch(function() { return null; }).then(function(body) {
+                            authSubmit.disabled = false;
+                            authSubmit.textContent = "Создать аккаунт";
+                            var msg = body && body.message ? body.message : null;
+                            if (msg && msg.toLowerCase().indexOf("exist") !== -1) {
+                                showGlobalError("Такой email уже используется");
+                            } else {
+                                showGlobalError(msg || "Не удалось создать аккаунт. Попробуй ещё раз.");
+                            }
+                        });
+                    }
+                    return res.json().then(function(data) {
+                        var token = extractToken(data);
+                        if (token) {
+                            setAuthToken(token);
+                            window.location.href = "/index.html";
+                        } else {
+                            authSubmit.textContent = "Входим...";
+                            doLogin(email, password, function() {
+                                window.location.href = "/index.html";
+                            }, function() {
+                                authSubmit.disabled = false;
+                                authSubmit.textContent = "Создать аккаунт";
+                                showGlobalSuccess("Аккаунт создан! Войди с теми же данными.");
+                                switchToLogin();
+                            });
+                        }
+                    });
+                })
+                .catch(function() {
+                    authSubmit.disabled = false;
+                    authSubmit.textContent = "Создать аккаунт";
+                    showGlobalError("Не удалось подключиться к серверу.");
+                });
+            }
+        });
+    </script>
+</body>
+</html>

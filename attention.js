@@ -182,6 +182,7 @@ const ATTENTION_SOON_DAYS = 7;
     }
 
     function getAttentionItems(goals) {
+        if (!Array.isArray(goals)) return [];
         const goalItems = goals
             .map(goal => {
                 const reason = getAttentionReason(goal);
@@ -208,6 +209,7 @@ const ATTENTION_SOON_DAYS = 7;
     }
 
     function renderAttentionBlock(goals) {
+        if (!Array.isArray(goals)) return;
         const attentionBlock =
             document.getElementById("attentionBlock");
 

@@ -132,6 +132,7 @@ function removeDuplicatesFromTodayPlanItems(items) {
 }
 
 function syncTodayPlanWithGoals(goals) {
+    if (!Array.isArray(goals)) return;
     const todayPlan = loadTodayPlan();
 
     const syncItem = (item) => {
@@ -409,7 +410,7 @@ function showAddProgressPopover(anchorButton, item) {
         submitBtn.disabled = true;
         submitBtn.textContent = "Сохраняем...";
 
-        fetch(apiUrl(`/goals/${item.goalId}/parts/${item.partIndex}/amount`), {
+        authFetch(`/goals/${item.goalId}/parts/${item.partIndex}/amount`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ amountToAdd: amountToAdd })
@@ -743,7 +744,7 @@ function renderTodayPlan() {
         });
 
         checkbox.addEventListener("change", () => {
-            fetch(apiUrl(`/goals/${item.goalId}/parts/${item.partIndex}`), {
+            authFetch(`/goals/${item.goalId}/parts/${item.partIndex}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"

@@ -35,7 +35,34 @@
 
         h1 {
             color: #4408b4;
+            margin: 0;
         }
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.logout-button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #eadcff;
+    background: transparent;
+    color: #7a6f91;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.logout-button:hover {
+    background: #f5f0ff;
+    color: #4408b4;
+    transform: none;
+}
 
 .attention-card {
     background: #fffdf8;

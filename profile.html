@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Frogel — профиль</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-header">
+    <h1>Frogel 🐸</h1>
+    <div class="app-nav">
+        <a href="/index.html" class="nav-link">Мои цели</a>
+        <button id="logoutButton" class="logout-button" type="button">Выйти</button>
+    </div>
+</div>
+
+<div class="profile-page">
+
+    <div class="profile-header-section">
+        <h2>Профиль</h2>
+        <p>Здесь живут данные твоего аккаунта.</p>
+    </div>
+
+    <div id="profileLoading" class="profile-loading-state">Загружаем профиль...</div>
+
+    <div id="profileError" class="profile-error-state hidden">
+        Не получилось загрузить профиль. Попробуй обновить страницу.
+    </div>
+
+    <div id="profileCard" class="profile-card hidden">
+        <div class="profile-row">
+            <span class="profile-label">Имя</span>
+            <span id="profileName" class="profile-value"></span>
+        </div>
+        <div class="profile-row">
+            <span class="profile-label">Email</span>
+            <span id="profileEmail" class="profile-value"></span>
+        </div>
+        <div class="profile-row">
+            <span class="profile-label">Аккаунт создан</span>
+            <span id="profileCreatedAt" class="profile-value"></span>
+        </div>
+    </div>
+
+    <div class="profile-support-card">
+        Ты постепенно двигаешься к своим вершинам — маленькими шагами, без спешки.
+    </div>
+
+</div>
+
+<div id="logoutConfirmModal" class="modal hidden">
+    <div class="modal-content delete-goal-modal-content">
+        <h2>Выйти из аккаунта?</h2>
+        <p class="modal-hint">Ты сможешь войти снова в любое время.</p>
+        <div class="modal-actions">
+            <button id="cancelLogoutButton" class="secondary-button" type="button">Остаться</button>
+            <button id="confirmLogoutButton" class="danger-button" type="button">Выйти</button>
+        </div>
+    </div>
+</div>
+
+<script src="api.js"></script>
+<script src="auth.js"></script>
+<script>requireAuth();</script>
+<script src="profile.js"></script>
+</body>
+</html>

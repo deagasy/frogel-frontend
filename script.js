@@ -565,8 +565,24 @@ if (deleteGoalModal && cancelDeleteGoalButton && confirmDeleteGoalButton) {
 loadGoals();
 
 const logoutButton = document.getElementById("logoutButton");
+const logoutConfirmModal = document.getElementById("logoutConfirmModal");
+const cancelLogoutButton = document.getElementById("cancelLogoutButton");
+const confirmLogoutButton = document.getElementById("confirmLogoutButton");
+
 if (logoutButton) {
     logoutButton.addEventListener("click", () => {
+        logoutConfirmModal.classList.remove("hidden");
+    });
+}
+
+if (cancelLogoutButton) {
+    cancelLogoutButton.addEventListener("click", () => {
+        logoutConfirmModal.classList.add("hidden");
+    });
+}
+
+if (confirmLogoutButton) {
+    confirmLogoutButton.addEventListener("click", () => {
         clearAuthToken();
         window.location.href = "/auth.html";
     });

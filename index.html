@@ -14,7 +14,10 @@
 <body>
 <div class="app-header">
     <h1>Frogel 🐸</h1>
-    <button id="logoutButton" class="logout-button" type="button">Выйти</button>
+    <div class="app-nav">
+        <a href="/profile.html" class="nav-link">Профиль</a>
+        <button id="logoutButton" class="logout-button" type="button">Выйти</button>
+    </div>
 </div>
 
 <div class="my-goals-block">
@@ -185,6 +188,17 @@
         <div class="modal-actions">
             <button id="cancelDiscardNewGoalButton" class="secondary-button" type="button">Остаться</button>
             <button id="confirmDiscardNewGoalButton" class="danger-button" type="button">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<div id="logoutConfirmModal" class="modal hidden">
+    <div class="modal-content delete-goal-modal-content">
+        <h2>Выйти из аккаунта?</h2>
+        <p class="modal-hint">Ты сможешь войти снова в любое время.</p>
+        <div class="modal-actions">
+            <button id="cancelLogoutButton" class="secondary-button" type="button">Остаться</button>
+            <button id="confirmLogoutButton" class="danger-button" type="button">Выйти</button>
         </div>
     </div>
 </div>

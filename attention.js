@@ -21,6 +21,16 @@ const ATTENTION_SOON_DAYS = 7;
         return "дней";
     }
 
+    function getDaysSinceLastUpdate(lastUpdatedAt) {
+        if (!lastUpdatedAt) return null;
+        const updated = new Date(lastUpdatedAt);
+        if (isNaN(updated.getTime())) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        updated.setHours(0, 0, 0, 0);
+        return Math.floor((today - updated) / (1000 * 60 * 60 * 24));
+    }
+
     function getDaysUntilDeadline(deadline) {
         const deadlineDate = parseDeadlineDate(deadline);
 
@@ -104,9 +114,19 @@ const ATTENTION_SOON_DAYS = 7;
             };
         }
 
-        if (!hasNextStep(goal)) {
+        const daysSinceUpdate = getDaysSinceLastUpdate(goal.lastUpdatedAt);
+        if (daysSinceUpdate !== null && daysSinceUpdate >= 7) {
             return {
                 priority: 3,
+                className: "attention-inactive",
+                text: `Не было движения ${daysSinceUpdate} ${pluralizeDays(daysSinceUpdate)}`,
+                daysUntilDeadline: -daysSinceUpdate
+            };
+        }
+
+        if (!hasNextStep(goal)) {
+            return {
+                priority: 4,
                 className: "attention-no-step",
                 text: "У цели нет следующего шага",
                 daysUntilDeadline: 9999

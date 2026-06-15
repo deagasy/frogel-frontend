@@ -168,6 +168,10 @@
     background: #8b7dff;
 }
 
+.attention-inactive .attention-dot {
+    background: #b0a8cc;
+}
+
 .attention-open-button {
     padding: 8px 12px;
     border-radius: 6px;

@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var loading = document.getElementById("profileLoading");
     var card = document.getElementById("profileCard");
     var errorEl = document.getElementById("profileError");
+    var supportCard = document.getElementById("profileSupportCard");
     var logoutButton = document.getElementById("logoutButton");
 
     var logoutConfirmModal = document.getElementById("logoutConfirmModal");
@@ -57,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             loading.classList.add("hidden");
             card.classList.remove("hidden");
+            supportCard.classList.remove("hidden");
         })
         .catch(function (err) {
             // authFetch already handles 401/403 by clearing token + redirecting.
@@ -64,6 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (err.message !== "Unauthorized" && err.message !== "Missing auth token") {
                 loading.classList.add("hidden");
                 errorEl.classList.remove("hidden");
+                supportCard.classList.add("hidden");
             }
         });
 });

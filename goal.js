@@ -292,8 +292,9 @@ goalRequest
         }
 
         function renderGoalDerived(g) {
-            document.getElementById("goalProgress").innerText = g.progressPercent;
-            document.getElementById("goalProgressFill").style.width = g.progressPercent + "%";
+            const progressPercent = Number.isFinite(Number(g.progressPercent)) ? Number(g.progressPercent) : 0;
+            document.getElementById("goalProgress").innerText = progressPercent;
+            document.getElementById("goalProgressFill").style.width = progressPercent + "%";
 
             const completedCount = g.parts.filter(p => p.completed).length;
             document.getElementById("goalPartsSummary").innerText =

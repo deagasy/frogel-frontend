@@ -27,6 +27,8 @@ function renderGoal(goal) {
         ? "Пока без шагов"
         : `<strong class="goal-row-count-done">${completedPartsCount}</strong> из ${totalPartsCount} ${getRussianPluralForm(totalPartsCount, "шага", "шагов", "шагов")}`;
 
+    const progressPercent = Number.isFinite(Number(goal.progressPercent)) ? Number(goal.progressPercent) : 0;
+
     goalElement.innerHTML = `
         <div class="goal-card-main">
             <div>
@@ -37,13 +39,13 @@ function renderGoal(goal) {
 
         <div class="goal-row-bar-cell">
             <div class="goal-row-mini-bar">
-                <div class="goal-row-mini-fill" style="width: ${goal.progressPercent}%"></div>
+                <div class="goal-row-mini-fill" style="width: ${progressPercent}%"></div>
             </div>
         </div>
 
         <div class="goal-row-count-block">
             <span class="goal-row-count">${stepProgressHtml}</span>
-            <span class="goal-row-percent">${goal.progressPercent}%</span>
+            <span class="goal-row-percent">${progressPercent}%</span>
         </div>
 
         <div class="goal-card-route-point">

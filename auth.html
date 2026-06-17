@@ -381,19 +381,16 @@
             })
             .then(function(res) {
                 if (!res.ok) {
-                    return res.json().catch(function() { return null; }).then(function(body) {
-                        var msg = (body && body.message) ? body.message : null;
-                        onError(res.status, msg);
-                    });
-                }
+    return res.json().catch(function() { return null; }).then(function() {
+        onError(res.status, null);
+    });
+}
                 return res.json().then(function(data) {
-                    console.log("[frogel-auth] login response keys:", Object.keys(data || {}));
                     var token = extractToken(data);
                     if (token) {
                         setAuthToken(token);
                         onSuccess();
                     } else {
-                        console.warn("[frogel-auth] token not found. Response keys:", Object.keys(data || {}));
                         onError(0, "Токен не получен. Попробуй ещё раз.");
                     }
                 });
@@ -448,7 +445,7 @@
                     if (status === 401 || status === 400) {
                         showGlobalError("Проверь email и пароль");
                     } else {
-                        showGlobalError(msg || "Не удалось войти. Попробуй ещё раз.");
+                        showGlobalError("Не удалось войти. Попробуй ещё раз.");
                     }
                 });
 
@@ -469,7 +466,7 @@
                             if (msg && msg.toLowerCase().indexOf("exist") !== -1) {
                                 showGlobalError("Такой email уже используется");
                             } else {
-                                showGlobalError(msg || "Не удалось создать аккаунт. Попробуй ещё раз.");
+                                showGlobalError("Не удалось создать аккаунт. Попробуй ещё раз.");
                             }
                         });
                     }

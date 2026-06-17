@@ -2703,3 +2703,42 @@
     overflow-wrap: anywhere;
     word-break: break-word;
 }
+
+/* Pre-demo fix: keep Add Step modal inside viewport */
+.add-step-modal-overlay,
+.step-modal-overlay,
+.modal-overlay {
+    box-sizing: border-box;
+    padding: 24px;
+    align-items: center;
+    overflow: hidden;
+}
+
+.add-step-modal,
+.step-modal,
+.add-step-popup,
+.modal-content {
+    box-sizing: border-box;
+    width: min(100%, 720px);
+    max-width: calc(100vw - 48px);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 28px;
+}
+
+@media (max-width: 640px) {
+    .add-step-modal-overlay,
+    .step-modal-overlay,
+    .modal-overlay {
+        padding: 16px;
+    }
+
+    .add-step-modal,
+    .step-modal,
+    .add-step-popup,
+    .modal-content {
+        max-width: calc(100vw - 32px);
+        max-height: calc(100vh - 32px);
+    }
+}

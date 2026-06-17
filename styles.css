@@ -2742,3 +2742,104 @@
         max-height: calc(100vh - 32px);
     }
 }
+
+/* Left Sidebar v1 */
+.page-with-sidebar {
+    padding-left: 248px;
+}
+
+.app-sidebar {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    bottom: 24px;
+    width: 200px;
+    box-sizing: border-box;
+    padding: 20px 16px;
+    border: 1px solid rgba(139, 92, 246, 0.18);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 18px 45px rgba(88, 64, 140, 0.10);
+    backdrop-filter: blur(14px);
+    z-index: 20;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px 18px;
+    text-decoration: none;
+}
+
+.sidebar-logo-text {
+    color: #4f28d7;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.sidebar-logo-frog {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    color: #6f638f;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus-visible {
+    background: rgba(139, 92, 246, 0.10);
+    color: #4f28d7;
+    outline: none;
+}
+
+.sidebar-link-icon {
+    width: 24px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.page-home .sidebar-link-home,
+.page-goals .sidebar-link-goals,
+.page-profile .sidebar-link-profile {
+    background: linear-gradient(135deg, #8b5cf6, #7c5be8);
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(124, 91, 232, 0.22);
+}
+
+.page-home .sidebar-link-home:hover,
+.page-goals .sidebar-link-goals:hover,
+.page-profile .sidebar-link-profile:hover {
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* On smaller screens keep the old top layout and hide sidebar for now */
+@media (max-width: 900px) {
+    .page-with-sidebar {
+        padding-left: 0;
+    }
+
+    .app-sidebar {
+        display: none;
+    }
+}

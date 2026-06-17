@@ -179,7 +179,14 @@ async function loadGoals() {
     } catch (err) {
         if (err.message === "Unauthorized" || err.message === "Missing auth token") return;
         console.error("[frogel] loadGoals error:", err);
-        showFrogelToast("Не удалось загрузить цели. Попробуй обновить страницу 🌸", "error");
+        const goalsDiv = document.getElementById("goals");
+        goalsDiv.innerHTML = `
+            <div class="goals-backend-error">
+                <p class="goals-backend-error-title">Не получилось загрузить цели</p>
+                <p class="goals-backend-error-text">Frogel не смог связаться с сервером. Попробуй обновить страницу.</p>
+                <button class="goals-backend-error-button" type="button" onclick="window.location.reload()">Обновить</button>
+            </div>
+        `;
     }
 }
 

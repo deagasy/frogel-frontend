@@ -45,10 +45,61 @@ function showGoalContent() {
     if (deleteBtn) deleteBtn.classList.remove("hidden");
 }
 
-function showGoalNotFound() {
+function showGoalErrorState({ title, text, buttonText, buttonHref, onButtonClick }) {
     document.getElementById("goalLoadingState").classList.add("hidden");
     document.getElementById("goalContentState").classList.add("hidden");
     document.getElementById("goalNotFoundState").classList.remove("hidden");
+
+    var deleteBtn = document.getElementById("deleteGoalButton");
+    if (deleteBtn) {
+        deleteBtn.classList.add("hidden");
+    }
+
+    var titleElement = document.getElementById("goalErrorTitle");
+    var textElement = document.getElementById("goalErrorText");
+    var actionElement = document.getElementById("goalErrorAction");
+
+    if (titleElement) {
+        titleElement.textContent = title;
+    }
+
+    if (textElement) {
+        textElement.textContent = text;
+    }
+
+    if (actionElement) {
+        actionElement.textContent = buttonText;
+        actionElement.href = buttonHref || "#";
+        actionElement.onclick = null;
+
+        if (onButtonClick) {
+            actionElement.onclick = function (event) {
+                event.preventDefault();
+                onButtonClick();
+            };
+        }
+    }
+}
+
+function showGoalNotFound() {
+    showGoalErrorState({
+        title: "Цель не найдена",
+        text: "Возможно, она была удалена или не существует.",
+        buttonText: "К моим целям",
+        buttonHref: "/index.html"
+    });
+}
+
+function showGoalLoadError() {
+    showGoalErrorState({
+        title: "Не получилось загрузить цель",
+        text: "Frogel не смог связаться с сервером. Попробуй обновить страницу.",
+        buttonText: "Обновить",
+        buttonHref: "#",
+        onButtonClick: function () {
+            window.location.reload();
+        }
+    });
 }
 
 function copyGoalPart(part) {
@@ -1363,6 +1414,18 @@ if (detailsToggle) {
         });
     })
     .catch(err => {
-        if (err.message === "Unauthorized" || err.message === "Missing auth token") return;
+        if (err.message === "Unauthorized" || err.message === "Missing auth token") {
+            return;
+        }
+
+        const isNetworkError =
+            err.name === "TypeError" ||
+            (err.message && err.message.includes("Failed to fetch"));
+
+        if (isNetworkError) {
+            showGoalLoadError();
+            return;
+        }
+
         showGoalNotFound();
     });

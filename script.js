@@ -125,6 +125,27 @@ function renderGoal(goal) {
     });
 
     goalsDiv.appendChild(goalElement);
+
+    const titleEl = goalElement.querySelector("h3");
+    if (titleEl && titleEl.scrollWidth > titleEl.clientWidth) {
+        const fullTitle = goal.title;
+        titleEl.classList.add("goal-title--expandable");
+        titleEl.tabIndex = 0;
+        titleEl.setAttribute("aria-label", "Показать полное название");
+        titleEl.addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.getElementById("goalTitlePopupText").textContent = fullTitle;
+            document.getElementById("goalTitlePopup").classList.remove("hidden");
+        });
+        titleEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                e.preventDefault();
+                document.getElementById("goalTitlePopupText").textContent = fullTitle;
+                document.getElementById("goalTitlePopup").classList.remove("hidden");
+            }
+        });
+    }
 }
 
 async function loadGoals() {
@@ -399,12 +420,12 @@ function validateAndSubmitNewGoal() {
     submitBtn.innerText = "Сохраняем...";
 
     const goalDeadline = document.getElementById("newGoalDeadline").value || null;
-    // Description is UI-only — not sent to backend yet (backend does not support it).
+    const goalDescription = document.getElementById("newGoalDescription").value.trim() || null;
 
     authFetch("/goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: goalTitle, deadline: goalDeadline })
+        body: JSON.stringify({ title: goalTitle, description: goalDescription, deadline: goalDeadline })
     })
     .then((res) => {
         if (!res.ok) throw new Error("goal_create_failed");
@@ -591,3 +612,22 @@ if (confirmLogoutButton) {
 document.addEventListener("click", () => {
     document.querySelectorAll(".step-menu:not(.hidden)").forEach(m => m.classList.add("hidden"));
 });
+
+const goalTitlePopup = document.getElementById("goalTitlePopup");
+const closeGoalTitlePopupBtn = document.getElementById("closeGoalTitlePopup");
+
+if (goalTitlePopup && closeGoalTitlePopupBtn) {
+    closeGoalTitlePopupBtn.addEventListener("click", () => {
+        goalTitlePopup.classList.add("hidden");
+    });
+    goalTitlePopup.addEventListener("click", (e) => {
+        if (e.target === goalTitlePopup) {
+            goalTitlePopup.classList.add("hidden");
+        }
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            goalTitlePopup.classList.add("hidden");
+        }
+    });
+}

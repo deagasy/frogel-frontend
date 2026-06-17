@@ -201,6 +201,39 @@
         .auth-success--visible {
             display: block;
         }
+
+        .auth-password-wrapper {
+            position: relative;
+        }
+
+        .auth-password-wrapper input {
+            width: 100%;
+            box-sizing: border-box;
+            padding-right: 44px;
+        }
+
+        .auth-eye-button {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 40px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b0a8cc;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .auth-eye-button:hover {
+            color: #7a6f91;
+            background: transparent;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -230,7 +263,15 @@
 
             <div class="auth-field">
                 <label for="inputPassword">Пароль</label>
-                <input type="password" id="inputPassword" placeholder="Не менее 6 символов" autocomplete="current-password">
+                <div class="auth-password-wrapper">
+                    <input type="password" id="inputPassword" placeholder="Не менее 8 символов" autocomplete="current-password">
+                    <button type="button" class="auth-eye-button" id="togglePassword" aria-label="Показать пароль">
+                        <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
                 <p class="auth-error" id="errorPassword"></p>
             </div>
 
@@ -259,6 +300,21 @@
         var inputName = document.getElementById("inputName");
         var inputEmail = document.getElementById("inputEmail");
         var inputPassword = document.getElementById("inputPassword");
+        var togglePassword = document.getElementById("togglePassword");
+        var eyeIcon = document.getElementById("eyeIcon");
+
+        togglePassword.addEventListener("click", function () {
+            var isHidden = inputPassword.type === "password";
+            inputPassword.type = isHidden ? "text" : "password";
+            togglePassword.setAttribute("aria-label", isHidden ? "Скрыть пароль" : "Показать пароль");
+            eyeIcon.innerHTML = isHidden
+                ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+                : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        });
+
+        function isValidEmailFormat(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
 
         function clearErrors() {
             document.getElementById("errorName").textContent = "";
@@ -364,10 +420,16 @@
             if (email === "") {
                 showFieldError("errorEmail", "Введи email");
                 hasError = true;
+            } else if (!isValidEmailFormat(email)) {
+                showFieldError("errorEmail", "Введи корректную почту");
+                hasError = true;
             }
 
             if (password === "") {
                 showFieldError("errorPassword", "Введи пароль");
+                hasError = true;
+            } else if (mode === "register" && password.length < 8) {
+                showFieldError("errorPassword", "Пароль должен быть не короче 8 символов");
                 hasError = true;
             }
 

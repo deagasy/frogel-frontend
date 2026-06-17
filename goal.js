@@ -1,3 +1,25 @@
+function renderLinkedText(container, text) {
+    container.textContent = "";
+    const urlPattern = /https?:\/\/[^\s<>"]+/g;
+    let lastIndex = 0;
+    let match;
+    while ((match = urlPattern.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            container.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+        }
+        const a = document.createElement("a");
+        a.href = match[0];
+        a.textContent = match[0];
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        container.appendChild(a);
+        lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < text.length) {
+        container.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+}
+
 function renderRoutePoint(deadline) {
     const routePointCard = document.getElementById("routePointCard");
     const goalDeadline = document.getElementById("goalDeadline");
@@ -66,8 +88,20 @@ goalRequest
     })
     .then(goal => {
         showGoalContent();
-        document.getElementById("goalTitle").innerText =
-            goal.title;
+        document.getElementById("goalTitle").innerText = goal.title;
+
+        const descBlock = document.getElementById("goalDescriptionBlock");
+        const descText = document.getElementById("goalDescriptionText");
+        if (descBlock && descText) {
+            const descriptionText = (goal.description || "").trim();
+            if (descriptionText) {
+                renderLinkedText(descText, descriptionText);
+                descBlock.hidden = false;
+            } else {
+                descText.textContent = "";
+                descBlock.hidden = true;
+            }
+        }
 
         renderRoutePoint(goal.deadline);
 

@@ -289,6 +289,7 @@
             margin: 0 0 4px;
             color: #24194f;
             font-size: var(--font-lg);
+            text-decoration: none;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -2382,6 +2383,31 @@
             line-height: 1.45;
         }
 
+        .goal-description-block {
+            margin: var(--space-4) 0 var(--space-5);
+            padding: 14px var(--space-4);
+            border-radius: var(--radius-lg);
+            background: rgba(246, 240, 255, 0.7);
+            border: 1px solid rgba(139, 92, 246, 0.16);
+        }
+
+        .goal-description-label {
+            margin-bottom: 6px;
+            font-size: var(--font-xs);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #8b6fd6;
+        }
+
+        .goal-description-text {
+            font-size: var(--font-base);
+            line-height: 1.5;
+            color: #4b3f72;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
 /* ========== Navigation ========== */
 
 .app-nav {
@@ -2589,4 +2615,50 @@
 
 .goal-not-found-secondary:hover {
     background: #e5d8ff;
+}
+
+/* Description block — clickable links */
+.goal-description-text a {
+    color: #6b4eff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+}
+
+.goal-description-text a:hover {
+    color: #4408b4;
+}
+
+/* Main page — expandable truncated goal title */
+.goal-title--expandable {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.goal-title--expandable:hover {
+    text-decoration: underline;
+    text-decoration-color: rgba(128, 97, 226, 0.5);
+    text-underline-offset: 3px;
+}
+
+.goal-title--expandable:focus-visible {
+    text-decoration: underline;
+    text-decoration-color: rgba(128, 97, 226, 0.5);
+    text-underline-offset: 3px;
+    outline: 2px solid rgba(128, 97, 226, 0.4);
+    border-radius: 2px;
+}
+
+/* Goal title popup */
+.goal-title-popup-content {
+    max-width: 420px;
+}
+
+.goal-title-popup-text {
+    margin: 0 0 var(--space-4);
+    color: #24194f;
+    font-size: var(--font-base);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }

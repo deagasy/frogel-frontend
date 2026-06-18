@@ -2833,14 +2833,71 @@
     transform: translateY(-1px);
 }
 
-/* On smaller screens keep the old top layout and hide sidebar for now */
+/* Mobile / small screen navigation fallback v1 */
 @media (max-width: 900px) {
     .page-with-sidebar {
         padding-left: 0;
+        padding-top: 16px;
     }
 
     .app-sidebar {
-        display: none;
+        position: static;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        width: auto;
+        margin: 0 16px 16px;
+        padding: 16px;
+        border-radius: 24px;
+    }
+
+    .sidebar-brand {
+        padding: 0 4px;
+    }
+
+    .sidebar-logo-text {
+        font-size: 28px;
+    }
+
+    .sidebar-logo-frog {
+        font-size: 26px;
+    }
+
+    .sidebar-nav {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 0;
+    }
+
+    .sidebar-link {
+        justify-content: center;
+        min-height: 42px;
+        padding: 10px 8px;
+        font-size: 14px;
+        border-radius: 16px;
+    }
+
+    .sidebar-link-icon {
+        width: auto;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 560px) {
+    .app-sidebar {
+        margin: 0 12px 14px;
+        padding: 14px;
+    }
+
+    .sidebar-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-link {
+        justify-content: flex-start;
+        padding: 10px 12px;
+        font-size: 16px;
     }
 }
 

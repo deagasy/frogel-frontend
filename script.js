@@ -85,29 +85,27 @@ function renderGoal(goal) {
         event.stopPropagation();
         goalMenu.classList.add("hidden");
 
-        pendingDeleteAction = () => authFetch(`/goals/${goal.id}`, {
-                method: "DELETE"
-            })
-            .then(response => {
+        pendingDeleteAction = async () => {
+            try {
+                const response = await authFetch(`/goals/${goal.id}`, {
+                    method: "DELETE"
+                });
+
                 if (!response.ok) {
                     throw new Error("Не удалось удалить цель");
                 }
+
                 removeTodayPlanItemsByGoalId(goal.id);
-                goalElement.remove();
-                if (goalsDiv.children.length === 0) {
-                    goalsDiv.innerHTML = `
-                        <div class="empty-state">
-                            <p class="empty-state-title">Пока здесь тихо</p>
-                            <p class="empty-state-text">Добавь первую цель — она появится в этом блоке.</p>
-                        </div>
-                    `;
+
+                await loadGoals();
+
+                if (typeof renderDayResults === "function") {
+                    renderDayResults();
                 }
-                renderTodayPlan();
-                renderDayResults();
-            })
-            .catch(() => {
+            } catch (error) {
                 showFrogelToast("Не удалось удалить цель. Попробуй ещё раз 🌸", "error");
-            });
+            }
+        };
 
         deleteGoalModal.classList.remove("hidden");
     });
@@ -150,27 +148,29 @@ function renderGoal(goal) {
     }
 }
 
-function getGoalSortTime(goal) {
-    const rawDate =
-        goal.lastUpdatedAt ||
-        goal.updatedAt ||
-        goal.createdAt;
+function getGoalLastUpdatedTime(goal) {
+    const time = Date.parse(goal.lastUpdatedAt);
 
-    const time = Date.parse(rawDate);
-
-    if (Number.isFinite(time)) {
-        return time;
-    }
-
-    const fallbackId = Number(goal.id);
-
-    return Number.isFinite(fallbackId) ? fallbackId : 0;
+    return Number.isFinite(time) ? time : 0;
 }
 
-function getHomePreviewGoals(goals) {
-    return [...goals]
-        .sort((firstGoal, secondGoal) => getGoalSortTime(secondGoal) - getGoalSortTime(firstGoal))
-        .slice(0, 3);
+function getGoalsSortedByLastUpdatedAt(goals) {
+    return [...goals].sort((firstGoal, secondGoal) => {
+        const secondGoalTime = getGoalLastUpdatedTime(secondGoal);
+        const firstGoalTime = getGoalLastUpdatedTime(firstGoal);
+
+        if (secondGoalTime !== firstGoalTime) {
+            return secondGoalTime - firstGoalTime;
+        }
+
+        const secondGoalId = Number(secondGoal.id);
+        const firstGoalId = Number(firstGoal.id);
+
+        const safeSecondGoalId = Number.isFinite(secondGoalId) ? secondGoalId : 0;
+        const safeFirstGoalId = Number.isFinite(firstGoalId) ? firstGoalId : 0;
+
+        return safeSecondGoalId - safeFirstGoalId;
+    });
 }
 
 function renderGoalsPreviewFooter(totalGoalsCount, isHomePage) {
@@ -207,7 +207,8 @@ async function loadGoals() {
 
         const goalsDiv = document.getElementById("goals");
         const isHomePage = document.body.classList.contains("page-home");
-        const goalsToRender = isHomePage ? getHomePreviewGoals(data) : data;
+        const sortedGoals = getGoalsSortedByLastUpdatedAt(data);
+        const goalsToRender = isHomePage ? sortedGoals.slice(0, 3) : sortedGoals;
 
         goalsDiv.innerHTML = "";
 

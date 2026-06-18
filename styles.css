@@ -2895,3 +2895,60 @@
     text-underline-offset: 4px;
     outline: none;
 }
+
+/* Home Compact Dashboard v1 — balanced version */
+@media (min-width: 901px) {
+    .page-home {
+        max-width: none;
+        margin: 0;
+        padding-top: 24px;
+        padding-right: 32px;
+        padding-bottom: 24px;
+        box-sizing: border-box;
+    }
+
+    .page-home .my-goals-block,
+    .page-home .bottom-row {
+        width: min(1120px, calc(100vw - 312px));
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .page-home .my-goals-block {
+        margin-bottom: 20px;
+        padding: 20px 20px 16px;
+        border-radius: 20px;
+    }
+
+    .page-home .my-goals-header {
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .page-home .my-goals-block .goal-card {
+        min-height: 64px;
+        padding: 12px 16px;
+    }
+
+    .page-home .bottom-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    .page-home .bottom-row > .today-plan-card,
+    .page-home .bottom-row > .attention-card {
+        min-height: 220px;
+        padding: 20px;
+        border-radius: 20px;
+        overflow: visible;
+    }
+
+    .page-home .today-plan-list,
+    .page-home .attention-list {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+    }
+}

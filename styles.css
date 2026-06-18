@@ -2843,3 +2843,21 @@
         display: none;
     }
 }
+
+/* Header cleanup v1: sidebar owns main navigation */
+.page-with-sidebar .legacy-top-header {
+    display: none;
+}
+.page-with-sidebar .legacy-header-action {
+    display: none;
+}
+.profile-header-section {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.profile-logout-button {
+    flex-shrink: 0;
+}

@@ -32,19 +32,24 @@
         </a>
     </nav>
 </aside>
-<div class="app-header">
+<div class="app-header legacy-top-header">
     <h1>Frogel 🐸</h1>
     <div class="app-nav">
         <a href="/index.html" class="nav-link">Мои цели</a>
-        <button id="logoutButton" class="logout-button" type="button">Выйти</button>
     </div>
 </div>
 
 <div class="profile-page">
 
     <div class="profile-header-section">
-        <h2>Профиль</h2>
-        <p>Здесь живут данные твоего аккаунта.</p>
+        <div>
+            <h2>Профиль</h2>
+            <p>Здесь живут данные твоего аккаунта.</p>
+        </div>
+
+        <button id="logoutButton" class="logout-button profile-logout-button" type="button">
+            Выйти
+        </button>
     </div>
 
     <div id="profileLoading" class="profile-loading-state">Загружаем профиль...</div>

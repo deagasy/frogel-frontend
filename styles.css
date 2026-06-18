@@ -2861,3 +2861,37 @@
 .profile-logout-button {
     flex-shrink: 0;
 }
+
+/* Goals Page v1 + Home compact preview */
+.page-goals-list .bottom-row {
+    display: none;
+}
+
+.goals-preview-footer {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(139, 92, 246, 0.10);
+}
+
+.goals-preview-footer.hidden {
+    display: none;
+}
+
+.goals-view-all-link {
+    display: inline-flex;
+    align-items: center;
+    color: #7c5be8;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.goals-view-all-link:hover,
+.goals-view-all-link:focus-visible {
+    color: #4f28d7;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    outline: none;
+}

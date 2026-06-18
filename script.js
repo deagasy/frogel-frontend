@@ -150,6 +150,50 @@ function renderGoal(goal) {
     }
 }
 
+function getGoalSortTime(goal) {
+    const rawDate =
+        goal.lastUpdatedAt ||
+        goal.updatedAt ||
+        goal.createdAt;
+
+    const time = Date.parse(rawDate);
+
+    if (Number.isFinite(time)) {
+        return time;
+    }
+
+    const fallbackId = Number(goal.id);
+
+    return Number.isFinite(fallbackId) ? fallbackId : 0;
+}
+
+function getHomePreviewGoals(goals) {
+    return [...goals]
+        .sort((firstGoal, secondGoal) => getGoalSortTime(secondGoal) - getGoalSortTime(firstGoal))
+        .slice(0, 3);
+}
+
+function renderGoalsPreviewFooter(totalGoalsCount, isHomePage) {
+    const footer = document.getElementById("goalsPreviewFooter");
+
+    if (!footer) {
+        return;
+    }
+
+    if (!isHomePage || totalGoalsCount <= 3) {
+        footer.classList.add("hidden");
+        footer.innerHTML = "";
+        return;
+    }
+
+    footer.classList.remove("hidden");
+    footer.innerHTML = `
+        <a class="goals-view-all-link" href="mygoals.html">
+            Посмотреть все цели (${totalGoalsCount})
+        </a>
+    `;
+}
+
 async function loadGoals() {
     try {
         const response = await authFetch("/goals");
@@ -161,16 +205,28 @@ async function loadGoals() {
             return;
         }
 
-        syncTodayPlanWithGoals(data);
-        renderTodayPlan();
-        renderAttentionBlock(data);
+        const goalsDiv = document.getElementById("goals");
+        const isHomePage = document.body.classList.contains("page-home");
+        const goalsToRender = isHomePage ? getHomePreviewGoals(data) : data;
 
-        data.forEach(goal => {
+        goalsDiv.innerHTML = "";
+
+        if (document.getElementById("todayPlanList")) {
+            syncTodayPlanWithGoals(data);
+            renderTodayPlan();
+        }
+
+        if (document.getElementById("attentionBlock")) {
+            renderAttentionBlock(data);
+        }
+
+        goalsToRender.forEach(goal => {
             renderGoal(goal);
         });
 
+        renderGoalsPreviewFooter(data.length, isHomePage);
+
         if (data.length === 0) {
-            const goalsDiv = document.getElementById("goals");
             goalsDiv.innerHTML = `
                 <div class="empty-state">
                     <p class="empty-state-title">Пока здесь тихо</p>
